@@ -11,7 +11,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,7 +22,7 @@ import com.cjapps.prop.ui.extensions.asDisplayCurrency
 import com.cjapps.prop.ui.extensions.asDisplayPercentage
 import com.cjapps.prop.ui.theme.ListItemDividerColor
 import com.cjapps.prop.ui.theme.PropComposeTheme
-import java.math.BigDecimal
+import com.cjapps.prop.ui.theme.ThemeDefaults
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,15 +47,8 @@ fun InvestmentSummaryScreen(
     investmentSummaryViewModel: InvestmentSummaryViewModel = viewModel()
 ) {
     Column(modifier = modifier.fillMaxSize()) {
-        InvestmentTotalSummary(
-            modifier,
-            investmentSummaryViewModel.totalForAllInvestments,
-            investmentSummaryViewModel.amountToInvestTextState
-        )
-        Text(
-            text = "Investments",
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 16.dp)
+        AppTitleHeader(
+            modifier
         )
         if (investmentSummaryViewModel.investmentAllocations.isEmpty()) {
             EmptyInvestmentState(
@@ -71,49 +63,25 @@ fun InvestmentSummaryScreen(
                     .fillMaxWidth()
                     .weight(1f),
                 investmentAllocations = investmentSummaryViewModel.investmentAllocations,
-                allInvestmentsTotal = investmentSummaryViewModel.totalForAllInvestments,
                 onAddInvestmentTap = { investmentSummaryViewModel.onAddInvestmentTapped() }
             )
         }
-//        Box(
-//            modifier = Modifier
-//                .background(color = Color.Blue)
-//                .height(50.dp)
-//                .fillMaxWidth()
-//        )
     }
 }
 
 @Composable
-fun InvestmentTotalSummary(
-    modifier: Modifier = Modifier,
-    currentTotal: BigDecimal,
-    amountToInvestText: MutableState<String>
+fun AppTitleHeader(
+    modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 20.dp),
-        horizontalArrangement = Arrangement.Center
+            .padding(horizontal = ThemeDefaults.pagePadding, vertical = 16.dp),
     ) {
-        Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                text = "Current Total",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(
-                    bottom = 4.dp
-                )
-            )
-            Text(text = currentTotal.asDisplayCurrency())
-        }
-//        OutlinedTextField(
-//            modifier = Modifier
-//                .weight(1f)
-//                .padding(horizontal = 20.dp),
-//            value = amountToInvestText.value,
-//            onValueChange = { amountToInvestText.value = it },
-//            label = { Text("Amount to Invest") }
-//        )
+        Text(
+            text = "Prop",
+            style = ThemeDefaults.appTitleTextStyle
+        )
     }
 }
 
@@ -144,7 +112,6 @@ fun AddInvestmentButton(onAddInvestmentTap: () -> Unit) {
 fun InvestmentAllocations(
     modifier: Modifier = Modifier,
     investmentAllocations: List<InvestmentAllocation>,
-    allInvestmentsTotal: BigDecimal,
     onAddInvestmentTap: () -> Unit
 ) {
     LazyColumn(modifier = modifier) {
@@ -153,27 +120,41 @@ fun InvestmentAllocations(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(all = 8.dp)
+                        .padding(horizontal = ThemeDefaults.pagePadding)
                 ) {
                     Text(
                         text = investmentAllocations[index].tickerName,
                         style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(top = 8.dp, bottom = 4.dp, start = 8.dp)
+                        modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
                     )
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 16.dp),
-                        horizontalArrangement = Arrangement.Center
+                            .padding(vertical = 16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Box(modifier = Modifier.weight(0.1f))
-                        RoundedCornerBox(modifier = Modifier.weight(1f)) {
-                            Column {
+                        RoundedCornerBox(
+                            modifier = Modifier
+                                .weight(1f)
+                                .defaultMinSize(minHeight = 90.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
                                 Text(
-                                    text = "Ideal",
-                                    style = MaterialTheme.typography.titleSmall,
-                                    modifier = Modifier.padding(bottom = 8.dp)
+                                    text = investmentAllocations[index].desiredPercentage.asDisplayPercentage()
                                 )
+                            }
+                        }
+                        Box(modifier = Modifier.weight(0.3f))
+                        RoundedCornerBox(
+                            modifier = Modifier
+                                .weight(1f)
+                                .defaultMinSize(minHeight = 90.dp)
+                        ) {
+                            Column {
                                 Text(
                                     text = investmentAllocations[index].desiredPercentage.asDisplayPercentage(),
                                 )
@@ -182,23 +163,15 @@ fun InvestmentAllocations(
                                 )
                             }
                         }
-                        Box(modifier = Modifier.weight(0.2f))
-                        RoundedCornerBox(modifier = Modifier.weight(1f)) {
-                            Column {
-                                Text(
-                                    text = investmentAllocations[index].desiredPercentage.asDisplayPercentage(),
-                                )
-                                Text(
-                                    text = investmentAllocations[index].currentInvestedAmount.asDisplayCurrency(),
-                                )
-                            }
-                        }
-                        Box(modifier = Modifier.weight(0.1f))
                     }
                 }
             } else {
-                BoxWithConstraints(modifier = Modifier.fillMaxWidth().height(100.dp),
-                    contentAlignment = Alignment.Center) {
+                BoxWithConstraints(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(100.dp),
+                    contentAlignment = Alignment.Center
+                ) {
                     AddInvestmentButton(onAddInvestmentTap = onAddInvestmentTap)
                 }
             }
