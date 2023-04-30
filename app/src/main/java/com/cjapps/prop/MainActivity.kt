@@ -26,6 +26,7 @@ import com.cjapps.prop.ui.theme.ListItemDividerColor
 import com.cjapps.prop.ui.theme.PropComposeTheme
 import com.cjapps.prop.ui.theme.Typography
 import com.cjapps.prop.ui.theme.ThemeDefaults
+import java.math.BigDecimal
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
