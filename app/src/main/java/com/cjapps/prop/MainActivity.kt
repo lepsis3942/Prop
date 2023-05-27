@@ -4,8 +4,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
@@ -14,8 +16,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -23,8 +29,11 @@ import com.cjapps.prop.models.InvestmentAllocation
 import com.cjapps.prop.ui.extensions.asDisplayCurrency
 import com.cjapps.prop.ui.extensions.asDisplayPercentage
 import com.cjapps.prop.ui.theme.ListItemDividerColor
+import com.cjapps.prop.ui.theme.Pink40
+import com.cjapps.prop.ui.theme.Pink80
 import com.cjapps.prop.ui.theme.PropComposeTheme
-import com.cjapps.prop.ui.theme.Typography
+import com.cjapps.prop.ui.theme.Purple40
+import com.cjapps.prop.ui.theme.Purple80
 import com.cjapps.prop.ui.theme.ThemeDefaults
 import java.math.BigDecimal
 
@@ -67,6 +76,7 @@ fun InvestmentSummaryScreen(
                     .fillMaxWidth()
                     .weight(1f),
                 investmentAllocations = investmentSummaryViewModel.investmentAllocations,
+                totalForInvestedSum = investmentSummaryViewModel.totalForAllInvestments,
                 onAddInvestmentTap = { investmentSummaryViewModel.onAddInvestmentTapped() }
             )
         }
@@ -116,112 +126,65 @@ fun AddInvestmentButton(onAddInvestmentTap: () -> Unit) {
 fun InvestmentAllocations(
     modifier: Modifier = Modifier,
     investmentAllocations: List<InvestmentAllocation>,
+    totalForInvestedSum: BigDecimal,
     onAddInvestmentTap: () -> Unit
 ) {
-    LazyColumn(modifier = modifier) {
-        items(investmentAllocations.size + 1, itemContent = { index ->
-            if (index != investmentAllocations.size) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = ThemeDefaults.pagePadding)
-                ) {
-                    Text(
-                        text = investmentAllocations[index].tickerName,
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
-                    )
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Box(modifier = Modifier.weight(0.1f))
-                        AllocationPercentageDisplay(
-                            modifier = Modifier.weight(1f).defaultMinSize(minHeight = 100.dp),
-                            percentage = investmentAllocations[index].desiredPercentage
-                        )
-                        Box(modifier = Modifier.weight(0.2f))
-                        AllocationCurrentAmount(
-                            modifier = Modifier.weight(1f).defaultMinSize(minHeight = 100.dp),
-                            amount = investmentAllocations[index].currentInvestedAmount
-                        )
-                        Box(modifier = Modifier.weight(0.1f))
-                    }
-                }
-            } else {
-                BoxWithConstraints(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(100.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    AddInvestmentButton(onAddInvestmentTap = onAddInvestmentTap)
-                }
-            }
-            if (index <= investmentAllocations.size - 1) ListDivider()
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 20.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        items(investmentAllocations.size, itemContent = { index ->
+            InvestmentGridCard(
+                investmentName = investmentAllocations[index].tickerName,
+                investmentPercentage = investmentAllocations[index].realPercentage(
+                    totalForInvestedSum
+                ),
+                amount = investmentAllocations[index].currentInvestedAmount
+            )
         })
     }
 }
 
 @Composable
-fun AllocationPercentageDisplay(
-    modifier: Modifier = Modifier,
-    percentage: BigDecimal
-) {
-    RoundedCornerBox(
-        modifier = modifier,
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = percentage.asDisplayPercentage(),
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontSize = 30.sp,
-                fontWeight = FontWeight.Bold
-            )
-        )
-    }
-}
-
-@Composable
-fun AllocationCurrentAmount(
-    modifier: Modifier = Modifier,
+fun InvestmentGridCard(
+    investmentName: String,
+    investmentPercentage: BigDecimal,
     amount: BigDecimal
 ) {
-    RoundedCornerBox(modifier = modifier, contentAlignment = Alignment.Center) {
-        Text(
-            text = amount.asDisplayCurrency(),
-            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-        )
+    val colorList = if (isSystemInDarkTheme()) {
+        listOf(Purple80, Pink80)
+    } else {
+        listOf(Purple40, Pink40)
     }
-}
-
-@Composable
-fun RoundedCornerBox(
-    modifier: Modifier = Modifier,
-    backgroundColor: Color = MaterialTheme.colorScheme.primaryContainer,
-    contentAlignment: Alignment = Alignment.TopStart,
-    content: @Composable (modifier: Modifier) -> Unit,
-) {
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(backgroundColor)
-            .padding(8.dp),
-        contentAlignment = contentAlignment
-    ) {
-        content(modifier)
-    }
-}
-
-@Composable
-fun ListDivider(modifier: Modifier = Modifier) {
-    return Box(
-        modifier = modifier
-            .height(1.dp)
+    Card(
+        modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp)
-            .background(ListItemDividerColor)
-    )
+            .wrapContentHeight(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(
+                alpha = 0.5f
+            )
+        )
+    ) {
+        Column(Modifier.padding(12.dp)) {
+            Text(
+                text = investmentName,
+                style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp)
+            )
+            Text(
+                text = investmentPercentage.asDisplayPercentage(),
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontSize = 40.sp,
+                    brush = Brush.linearGradient(colorList)
+                )
+            )
+            Text(
+                modifier = Modifier.padding(top = 12.dp),
+                text = amount.asDisplayCurrency(),
+                style = MaterialTheme.typography.titleMedium
+            )
+        }
+    }
 }
