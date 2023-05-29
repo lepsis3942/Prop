@@ -3,9 +3,17 @@ package com.cjapps.prop.ui.theme
 import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -50,6 +58,7 @@ fun PropComposeTheme(
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
+
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
@@ -62,11 +71,20 @@ fun PropComposeTheme(
         }
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
+    val extendedThemeValues = PropExtendedThemeColors(
+        gradientColorList = if (isSystemInDarkTheme()) {
+            listOf(Purple80, Pink80)
+        } else {
+            listOf(Purple40, Pink40)
+        }
     )
+    CompositionLocalProvider(LocalExtendedThemeValues provides extendedThemeValues) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = Typography,
+            content = content
+        )
+    }
 }
 
 object ThemeDefaults {
@@ -78,4 +96,22 @@ object ThemeDefaults {
         fontSize = 32.sp,
         letterSpacing = 0.sp
     )
+}
+
+/// Theme extensions
+@Immutable
+data class PropExtendedThemeColors(
+    val gradientColorList: List<Color>
+)
+
+val LocalExtendedThemeValues = staticCompositionLocalOf {
+    PropExtendedThemeColors(
+        gradientColorList = listOf()
+    )
+}
+
+object ExtendedTheme {
+    val colors: PropExtendedThemeColors
+        @Composable
+        get() = LocalExtendedThemeValues.current
 }
