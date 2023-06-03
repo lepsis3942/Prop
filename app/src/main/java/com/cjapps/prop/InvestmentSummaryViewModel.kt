@@ -2,10 +2,16 @@ package com.cjapps.prop
 
 import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
+import com.cjapps.prop.data.IInvestmentRepository
 import com.cjapps.prop.models.InvestmentAllocation
+import dagger.hilt.android.lifecycle.HiltViewModel
 import java.math.BigDecimal
+import javax.inject.Inject
 
-class InvestmentSummaryViewModel : ViewModel() {
+@HiltViewModel
+class InvestmentSummaryViewModel @Inject constructor(
+    private val investmentRepository: IInvestmentRepository
+) : ViewModel() {
     private val _investmentAllocations = listOf(
         InvestmentAllocation("SCHB", BigDecimal("0.23"), BigDecimal("54797.12")),
         InvestmentAllocation("SCHC", BigDecimal("0.54"), BigDecimal("12000.67")),
@@ -16,8 +22,9 @@ class InvestmentSummaryViewModel : ViewModel() {
 
     val investmentAllocations: List<InvestmentAllocation> get() = _investmentAllocations
 
-    val totalForAllInvestments: BigDecimal get() = _investmentAllocations.fold(BigDecimal.ZERO)
-    { total, item -> total + item.currentInvestedAmount }
+    val totalForAllInvestments: BigDecimal
+        get() = _investmentAllocations.fold(BigDecimal.ZERO)
+        { total, item -> total + item.currentInvestedAmount }
 
     fun onAddInvestmentTapped() {
         _investmentAllocations.add(
@@ -30,6 +37,7 @@ class InvestmentSummaryViewModel : ViewModel() {
     }
 
     fun onInvestTapped() {
+
 
     }
 }

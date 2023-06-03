@@ -37,8 +37,10 @@ import com.cjapps.prop.ui.extensions.asDisplayPercentage
 import com.cjapps.prop.ui.theme.ExtendedTheme
 import com.cjapps.prop.ui.theme.PropComposeTheme
 import com.cjapps.prop.ui.theme.ThemeDefaults
+import dagger.hilt.android.AndroidEntryPoint
 import java.math.BigDecimal
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
