@@ -7,15 +7,21 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowForward
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -61,16 +67,17 @@ fun InvestmentSummaryScreen(
         )
         HeaderCard(
             accountTotal = investmentSummaryViewModel.totalForAllInvestments,
-            onAddInvestmentTap = { /*TODO*/ },
-            onInvestTap = {/* TODO */ },
+            onAddInvestmentTap = { investmentSummaryViewModel.onAddInvestmentTapped() },
+            onInvestTap = { investmentSummaryViewModel.onInvestTapped() },
         )
         InvestmentAllocations(
             modifier = Modifier
+
                 .fillMaxWidth()
-                .weight(1f),
+                .weight(1f)
+                .padding(top = 16.dp),
             investmentAllocations = investmentSummaryViewModel.investmentAllocations,
             totalForInvestedSum = investmentSummaryViewModel.totalForAllInvestments,
-            onAddInvestmentTap = { investmentSummaryViewModel.onAddInvestmentTapped() }
         )
     }
 }
@@ -107,8 +114,7 @@ fun HeaderCard(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = ThemeDefaults.pagePadding),
-        colors = CardDefaults.elevatedCardColors(
-        ),
+        colors = CardDefaults.elevatedCardColors(),
         elevation = CardDefaults.elevatedCardElevation()
     ) {
         Column(
@@ -145,12 +151,13 @@ fun HeaderCard(
                         .weight(1f)
                         .padding(start = 8.dp), onClick = onInvestTap
                 ) {
+                    Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
                     Text(text = "Invest", style = MaterialTheme.typography.titleMedium)
-//                    Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-//                    Icon(
-//                        Icons.Rounded.ArrowForward,
-//                        contentDescription = "Invest"
-//                    )
+                    Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
+                    Icon(
+                        Icons.Rounded.ArrowForward,
+                        contentDescription = "Invest"
+                    )
                 }
             }
         }
@@ -161,12 +168,12 @@ fun HeaderCard(
 fun InvestmentAllocations(
     modifier: Modifier = Modifier,
     investmentAllocations: List<InvestmentAllocation>,
-    totalForInvestedSum: BigDecimal,
-    onAddInvestmentTap: () -> Unit
+    totalForInvestedSum: BigDecimal
 ) {
     LazyVerticalGrid(
+        modifier = modifier,
         columns = GridCells.Fixed(2),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 20.dp),
+        contentPadding = PaddingValues(top = 0.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {

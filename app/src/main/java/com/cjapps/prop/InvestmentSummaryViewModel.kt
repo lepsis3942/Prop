@@ -1,6 +1,5 @@
 package com.cjapps.prop
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import com.cjapps.prop.models.InvestmentAllocation
@@ -28,5 +27,9 @@ class InvestmentSummaryViewModel : ViewModel() {
                 BigDecimal("5497.12")
             )
         )
+    }
+
+    fun onInvestTapped() {
+
     }
 }
