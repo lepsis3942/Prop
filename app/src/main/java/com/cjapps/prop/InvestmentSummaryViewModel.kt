@@ -1,43 +1,62 @@
 package com.cjapps.prop
 
-import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.cjapps.prop.data.IInvestmentRepository
 import com.cjapps.prop.models.InvestmentAllocation
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import javax.inject.Inject
 
 @HiltViewModel
 class InvestmentSummaryViewModel @Inject constructor(
-    private val investmentRepository: IInvestmentRepository
+    private val dispatcherProvider: IDispatcherProvider,
+    private val investmentRepository: IInvestmentRepository,
 ) : ViewModel() {
-    private val _investmentAllocations = listOf(
-        InvestmentAllocation("SCHB", BigDecimal("0.23"), BigDecimal("54797.12")),
-        InvestmentAllocation("SCHC", BigDecimal("0.54"), BigDecimal("12000.67")),
-        InvestmentAllocation("TSLA", BigDecimal("0.12"), BigDecimal("3867.74")),
-        InvestmentAllocation("MSFT", BigDecimal("0.08"), BigDecimal("230.11")),
-        InvestmentAllocation("V", BigDecimal("0.03"), BigDecimal("230.11")),
-    ).sortedByDescending { item -> item.currentInvestedAmount }.toMutableStateList()
+    private val uiStateFlow = MutableStateFlow(
+        HomeScreenUiState(
+            isLoading = true,
+            investmentAllocations = listOf(),
+            totalForAllInvestments = BigDecimal.ZERO
+        )
+    )
 
-    val investmentAllocations: List<InvestmentAllocation> get() = _investmentAllocations
+    init {
+        retrieveInvestments()
+    }
 
-    val totalForAllInvestments: BigDecimal
-        get() = _investmentAllocations.fold(BigDecimal.ZERO)
-        { total, item -> total + item.currentInvestedAmount }
+    val uiState: MutableStateFlow<HomeScreenUiState> get() = uiStateFlow
 
     fun onAddInvestmentTapped() {
-        _investmentAllocations.add(
-            InvestmentAllocation(
-                "SCHB",
-                BigDecimal("0.23"),
-                BigDecimal("5497.12")
-            )
-        )
     }
 
     fun onInvestTapped() {
 
-
     }
+
+    private fun retrieveInvestments() {
+        viewModelScope.launch {
+            val investments = investmentRepository.getInvestments()
+                .sortedByDescending { item -> item.currentInvestedAmount }
+            uiStateFlow.update {
+                it.copy(
+                    isLoading = false,
+                    investmentAllocations = investments,
+                    totalForAllInvestments = calculateInvestmentTotal(investments)
+                )
+            }
+        }
+    }
+
+    private fun calculateInvestmentTotal(investmentAllocations: List<InvestmentAllocation>): BigDecimal =
+        investmentAllocations.fold(BigDecimal.ZERO) { total, item -> total + item.currentInvestedAmount }
 }
+
+data class HomeScreenUiState(
+    val isLoading: Boolean,
+    val investmentAllocations: List<InvestmentAllocation>,
+    val totalForAllInvestments: BigDecimal
+)

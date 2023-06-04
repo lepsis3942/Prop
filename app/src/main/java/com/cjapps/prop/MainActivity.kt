@@ -20,16 +20,20 @@ import androidx.compose.material.icons.rounded.ArrowForward
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.cjapps.prop.models.InvestmentAllocation
 import com.cjapps.prop.ui.extensions.asDisplayCurrency
@@ -63,24 +67,36 @@ fun InvestmentSummaryScreen(
     modifier: Modifier = Modifier,
     investmentSummaryViewModel: InvestmentSummaryViewModel = viewModel()
 ) {
+    val uiState by investmentSummaryViewModel.uiState.collectAsStateWithLifecycle()
+
     Column(modifier = modifier.fillMaxSize()) {
         AppTitleHeader(
             modifier
         )
-        HeaderCard(
-            accountTotal = investmentSummaryViewModel.totalForAllInvestments,
-            onAddInvestmentTap = { investmentSummaryViewModel.onAddInvestmentTapped() },
-            onInvestTap = { investmentSummaryViewModel.onInvestTapped() },
-        )
-        InvestmentAllocations(
-            modifier = Modifier
+        if (uiState.isLoading) {
+            Row(
+                modifier = modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                CircularProgressIndicator()
+            }
+        } else {
+            HeaderCard(
+                accountTotal = uiState.totalForAllInvestments,
+                onAddInvestmentTap = { investmentSummaryViewModel.onAddInvestmentTapped() },
+                onInvestTap = { investmentSummaryViewModel.onInvestTapped() },
+            )
+            InvestmentAllocations(
+                modifier = Modifier
 
-                .fillMaxWidth()
-                .weight(1f)
-                .padding(top = 16.dp),
-            investmentAllocations = investmentSummaryViewModel.investmentAllocations,
-            totalForInvestedSum = investmentSummaryViewModel.totalForAllInvestments,
-        )
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(top = 16.dp),
+                investmentAllocations = uiState.investmentAllocations,
+                totalForInvestedSum = uiState.totalForAllInvestments,
+            )
+        }
     }
 }
 
