@@ -4,4 +4,5 @@ import com.cjapps.prop.models.InvestmentAllocation
 
 interface IInvestmentRepository {
     suspend fun getInvestments(): List<InvestmentAllocation>
+    suspend fun addInvestment(investment: InvestmentAllocation)
 }

@@ -31,6 +31,17 @@ class InvestmentSummaryViewModel @Inject constructor(
     val uiState: MutableStateFlow<HomeScreenUiState> get() = uiStateFlow
 
     fun onAddInvestmentTapped() {
+        viewModelScope.launch {
+            investmentRepository.addInvestment(
+                InvestmentAllocation(
+                    "MSFT",
+                    BigDecimal("0.08"),
+                    BigDecimal("230.11")
+                )
+            )
+            // TODO: the repo will eventually be flows so manually updating will be unnecessary
+            retrieveInvestments()
+        }
     }
 
     fun onInvestTapped() {
