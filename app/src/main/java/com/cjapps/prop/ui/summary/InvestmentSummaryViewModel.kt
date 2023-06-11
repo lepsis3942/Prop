@@ -1,7 +1,8 @@
-package com.cjapps.prop
+package com.cjapps.prop.ui.summary
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cjapps.prop.IDispatcherProvider
 import com.cjapps.prop.data.IInvestmentRepository
 import com.cjapps.prop.models.InvestmentAllocation
 import dagger.hilt.android.lifecycle.HiltViewModel
