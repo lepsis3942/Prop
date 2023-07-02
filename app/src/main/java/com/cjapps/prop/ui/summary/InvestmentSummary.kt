@@ -42,7 +42,8 @@ import java.math.BigDecimal
 @Composable
 fun InvestmentSummaryScreen(
     modifier: Modifier = Modifier,
-    investmentSummaryViewModel: InvestmentSummaryViewModel = viewModel()
+    investmentSummaryViewModel: InvestmentSummaryViewModel = viewModel(),
+    navigateToInvestmentCreate: () -> Unit
 ) {
     val uiState by investmentSummaryViewModel.uiState.collectAsStateWithLifecycle()
 
@@ -66,7 +67,7 @@ fun InvestmentSummaryScreen(
             } else {
                 HeaderCard(
                     accountTotal = uiState.totalForAllInvestments,
-                    onAddInvestmentTap = { investmentSummaryViewModel.onAddInvestmentTapped() },
+                    onAddInvestmentTap = { navigateToInvestmentCreate() },
                     onInvestTap = { investmentSummaryViewModel.onInvestTapped() },
                 )
                 InvestmentAllocations(

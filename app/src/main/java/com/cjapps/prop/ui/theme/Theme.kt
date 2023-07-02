@@ -67,7 +67,15 @@ fun PropComposeTheme(
         SideEffect {
             val window = (view.context as Activity).window
             window.statusBarColor = colorScheme.primary.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
+            window.navigationBarColor = Color.Transparent.toArgb()
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                window.isNavigationBarContrastEnforced = false
+            }
+
+            val windowsInsetsController = WindowCompat.getInsetsController(window, view)
+            windowsInsetsController.isAppearanceLightStatusBars = darkTheme
+            windowsInsetsController.isAppearanceLightNavigationBars = darkTheme
         }
     }
 
@@ -76,6 +84,11 @@ fun PropComposeTheme(
             listOf(Purple80, Pink80)
         } else {
             listOf(Purple40, Pink40)
+        },
+        inverseSecondary = if (isSystemInDarkTheme()) {
+            PurpleGrey40
+        } else {
+            PurpleGrey80
         }
     )
     CompositionLocalProvider(LocalExtendedThemeValues provides extendedThemeValues) {
@@ -101,12 +114,14 @@ object ThemeDefaults {
 /// Theme extensions
 @Immutable
 data class PropExtendedThemeColors(
-    val gradientColorList: List<Color>
+    val gradientColorList: List<Color>,
+    val inverseSecondary: Color
 )
 
 val LocalExtendedThemeValues = staticCompositionLocalOf {
     PropExtendedThemeColors(
-        gradientColorList = listOf()
+        gradientColorList = listOf(),
+        inverseSecondary = Color.LightGray
     )
 }
 
