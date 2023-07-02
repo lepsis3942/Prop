@@ -1,6 +1,8 @@
 package com.cjapps.prop.ui.detail
 
+import android.util.Log
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,6 +17,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -27,12 +33,14 @@ import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.clipPath
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.cjapps.prop.ui.theme.ExtendedTheme
 import com.cjapps.prop.ui.theme.ThemeDefaults
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -97,7 +105,10 @@ fun InvestmentDetailScreen(
                         width = 60.dp,
                         fillPercentage = 67,
                         backgroundColor = ExtendedTheme.colors.inverseSecondary,
-                        fillBrush = Brush.linearGradient(ExtendedTheme.colors.gradientColorList)
+                        fillBrush = Brush.linearGradient(ExtendedTheme.colors.gradientColorList),
+                        percentageUpdated = {
+                            Log.d("PERCENTAGE UPDATED", it.toString())
+                        }
                     )
                 }
             }
@@ -111,40 +122,58 @@ fun PercentageBar(
     width: Dp,
     fillPercentage: Int,
     backgroundColor: Color,
-    fillBrush: Brush
+    fillBrush: Brush,
+    percentageUpdated: (Int) -> Unit
 ) {
-    Canvas(
-        modifier = Modifier
-            .size(width = width, height = height)
-    ) {
-        val roundedRadius = CornerRadius(width.toPx(), width.toPx())
-        val fillHeight = height * (fillPercentage / 100f)
-
-        val regionPath = Path().apply {
-            addRoundRect(
-                RoundRect(
-                    Rect(
-                        Offset.Zero,
-                        size = Size(width = width.toPx(), height = height.toPx())
-                    ),
-                    topLeft = roundedRadius,
-                    topRight = roundedRadius,
-                    bottomLeft = roundedRadius,
-                    bottomRight = roundedRadius
-                )
-            )
-        }
-
-        clipPath(
-            path = regionPath,
-            clipOp = ClipOp.Intersect
+    var mutatedFillPercentage by remember { mutableIntStateOf(fillPercentage) }
+    Box(
+        Modifier
+            .padding(horizontal = 20.dp, vertical = 10.dp)
+            .pointerInput(Unit) {
+                detectVerticalDragGestures(onVerticalDrag = { change, dragAmount ->
+                    change.consume()
+                    val dragChange = (-dragAmount * 0.15f).roundToInt()
+                    val dragChangeResult = (mutatedFillPercentage + dragChange).coerceIn(0, 100)
+                    if (dragChangeResult != mutatedFillPercentage) {
+                        mutatedFillPercentage = dragChangeResult
+                    }
+                }, onDragEnd = {
+                    percentageUpdated(mutatedFillPercentage)
+                })
+            }) {
+        Canvas(
+            modifier = Modifier
+                .size(width = width, height = height)
         ) {
-            drawPath(path = regionPath, color = backgroundColor)
-            drawRect(
-                brush = fillBrush,
-                topLeft = Offset(0.dp.toPx(), (height - fillHeight).toPx()),
-                size = Size(width = width.toPx(), height = fillHeight.toPx())
-            )
+            val roundedRadius = CornerRadius(width.toPx(), width.toPx())
+            val fillHeight = height * (mutatedFillPercentage / 100f)
+
+            val regionPath = Path().apply {
+                addRoundRect(
+                    RoundRect(
+                        Rect(
+                            Offset.Zero,
+                            size = Size(width = width.toPx(), height = height.toPx())
+                        ),
+                        topLeft = roundedRadius,
+                        topRight = roundedRadius,
+                        bottomLeft = roundedRadius,
+                        bottomRight = roundedRadius
+                    )
+                )
+            }
+
+            clipPath(
+                path = regionPath,
+                clipOp = ClipOp.Intersect
+            ) {
+                drawPath(path = regionPath, color = backgroundColor)
+                drawRect(
+                    brush = fillBrush,
+                    topLeft = Offset(0.dp.toPx(), (height - fillHeight).toPx()),
+                    size = Size(width = width.toPx(), height = fillHeight.toPx())
+                )
+            }
         }
     }
 }
