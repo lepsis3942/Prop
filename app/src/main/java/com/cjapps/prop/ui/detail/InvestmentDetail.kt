@@ -1,6 +1,6 @@
 package com.cjapps.prop.ui.detail
 
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -81,9 +82,20 @@ fun InvestmentDetailScreen(
                 )
             }
             Row(
-                modifier = Modifier.padding(top = 32.dp)
+                modifier = Modifier
+                    .padding(top = 32.dp)
+                    .fillMaxSize()
             ) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Desired Percentage: ${uiState.currentPercentageToInvest}%",
+                        modifier = Modifier.padding(bottom = 10.dp),
+                        style = MaterialTheme.typography.titleMedium
+                    )
                     DraggableNumberSelectionBar(
                         height = 200.dp,
                         width = 60.dp,

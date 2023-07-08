@@ -96,7 +96,6 @@ fun DraggableNumberSelectionBar(
                 )
             }
 
-
             clipPath(
                 path = regionPath,
                 clipOp = ClipOp.Intersect
