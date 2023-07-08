@@ -18,9 +18,9 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,8 +49,7 @@ fun InvestmentSummaryScreen(
 
     // A surface container using the 'background' color from the theme
     Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
+        modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
     ) {
         Column(modifier = modifier.fillMaxSize()) {
             AppTitleHeader(
@@ -99,8 +98,7 @@ fun AppTitleHeader(
             ),
     ) {
         Text(
-            text = "Prop",
-            style = ThemeDefaults.appTitleTextStyle
+            text = "Prop", style = ThemeDefaults.appTitleTextStyle
         )
     }
 }
@@ -116,7 +114,7 @@ fun HeaderCard(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = ThemeDefaults.pagePadding),
-        colors = CardDefaults.elevatedCardColors(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
         elevation = CardDefaults.elevatedCardElevation()
     ) {
         Column(
@@ -130,10 +128,7 @@ fun HeaderCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text(text = "Total:", style = moneyTextStyle)
-                Text(
-                    text = accountTotal.asDisplayCurrency(),
-                    style = moneyTextStyle
-                )
+                Text(text = accountTotal.asDisplayCurrency(), style = moneyTextStyle)
             }
             Row(
                 modifier = Modifier
@@ -141,14 +136,14 @@ fun HeaderCard(
                     .padding(top = 24.dp),
                 horizontalArrangement = Arrangement.SpaceAround,
             ) {
-                FilledTonalButton(
+                OutlinedButton(
                     modifier = Modifier
                         .weight(1f)
                         .padding(end = 8.dp), onClick = onAddInvestmentTap
                 ) {
                     Text(text = "Add Stock", style = MaterialTheme.typography.titleMedium)
                 }
-                FilledTonalButton(
+                OutlinedButton(
                     modifier = Modifier
                         .weight(1f)
                         .padding(start = 8.dp), onClick = onInvestTap
@@ -157,8 +152,7 @@ fun HeaderCard(
                     Text(text = "Invest", style = MaterialTheme.typography.titleMedium)
                     Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
                     Icon(
-                        Icons.Rounded.ArrowForward,
-                        contentDescription = "Invest"
+                        Icons.Rounded.ArrowForward, contentDescription = "Invest"
                     )
                 }
             }
@@ -193,15 +187,12 @@ fun InvestmentAllocations(
 
 @Composable
 fun InvestmentGridCard(
-    investmentName: String,
-    investmentPercentage: BigDecimal,
-    amount: BigDecimal
+    investmentName: String, investmentPercentage: BigDecimal, amount: BigDecimal
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .wrapContentHeight(),
-        colors = CardDefaults.cardColors(
+            .wrapContentHeight(), colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer.copy(
                 alpha = 0.4f
             )

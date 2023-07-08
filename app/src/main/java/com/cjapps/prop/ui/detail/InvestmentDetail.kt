@@ -92,7 +92,7 @@ fun InvestmentDetailScreen(
                         width = 60.dp,
                         startingNumber = selectedNumber,
                         maxAllowedNumber = 100,
-                        backgroundColor = ExtendedTheme.colors.inverseSecondary,
+                        backgroundColor = ExtendedTheme.colors.inverseSecondary.copy(alpha = 0.3f),
                         fillBrush = Brush.linearGradient(ExtendedTheme.colors.gradientColorList),
                         numberSelectionUpdated = {
                             selectedNumber = it
