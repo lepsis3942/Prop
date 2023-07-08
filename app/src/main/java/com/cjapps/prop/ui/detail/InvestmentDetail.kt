@@ -14,14 +14,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.cjapps.prop.ui.theme.ExtendedTheme
 import com.cjapps.prop.ui.theme.ThemeDefaults
@@ -33,6 +31,8 @@ fun InvestmentDetailScreen(
     investmentDetailViewModel: InvestmentDetailViewModel = viewModel(),
     navigateHome: () -> Unit
 ) {
+    val uiState by investmentDetailViewModel.uiState.collectAsStateWithLifecycle()
+
     Scaffold(
         modifier = Modifier
             .fillMaxSize(),
@@ -84,18 +84,17 @@ fun InvestmentDetailScreen(
                 modifier = Modifier.padding(top = 32.dp)
             ) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    var selectedNumber by remember {
-                        mutableIntStateOf(2)
-                    }
                     DraggableNumberSelectionBar(
                         height = 200.dp,
                         width = 60.dp,
-                        startingNumber = selectedNumber,
+                        startingNumber = uiState.currentPercentageToInvest,
                         maxAllowedNumber = 100,
                         backgroundColor = ExtendedTheme.colors.inverseSecondary.copy(alpha = 0.3f),
                         fillBrush = Brush.linearGradient(ExtendedTheme.colors.gradientColorList),
                         numberSelectionUpdated = {
-                            selectedNumber = it
+                            investmentDetailViewModel.updatePercentageToInvest(
+                                it
+                            )
                         }
                     )
                 }
