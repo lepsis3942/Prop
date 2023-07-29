@@ -7,6 +7,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import java.math.BigDecimal
+import java.text.DecimalFormat
+import java.text.NumberFormat
 import javax.inject.Inject
 
 @HiltViewModel
@@ -18,13 +20,29 @@ class InvestmentDetailViewModel @Inject constructor(
         InvestmentDetailUiState(
             isLoading = true,
             tickerName = "",
-            currentInvestmentValue = BigDecimal.ZERO,
+            currentInvestmentValue = "",
             currentPercentageToInvest = 0,
             availablePercentageToInvest = 0
         )
     )
+    private var currentInvestmentValue = BigDecimal.ZERO
 
     val uiState: MutableStateFlow<InvestmentDetailUiState> get() = uiStateFlow
+
+    fun updateCurrentValue(newValue: String) {
+        val decimalFormat = NumberFormat.getInstance() as DecimalFormat
+        decimalFormat.isParseBigDecimal = true
+        decimalFormat.maximumFractionDigits = 2
+        var parsedDecimal = currentInvestmentValue
+        try {
+            parsedDecimal = decimalFormat.parse(newValue) as BigDecimal
+        } catch (_: Exception) {
+        }
+
+        uiStateFlow.update {
+            it.copy(currentInvestmentValue = decimalFormat.format(parsedDecimal))
+        }
+    }
 
     fun updatePercentageToInvest(newPercentage: Int) {
         uiStateFlow.update {
@@ -36,7 +54,7 @@ class InvestmentDetailViewModel @Inject constructor(
 data class InvestmentDetailUiState(
     val isLoading: Boolean,
     val tickerName: String,
-    val currentInvestmentValue: BigDecimal,
+    val currentInvestmentValue: String,
     val currentPercentageToInvest: Int,
     val availablePercentageToInvest: Int
 )
