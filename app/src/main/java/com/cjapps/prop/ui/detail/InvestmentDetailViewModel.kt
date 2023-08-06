@@ -5,10 +5,9 @@ import com.cjapps.prop.IDispatcherProvider
 import com.cjapps.prop.data.IInvestmentRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import java.math.BigDecimal
-import java.text.DecimalFormat
-import java.text.NumberFormat
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,22 +24,23 @@ class InvestmentDetailViewModel @Inject constructor(
             availablePercentageToInvest = 0
         )
     )
-    private var currentInvestmentValue = BigDecimal.ZERO
 
-    val uiState: MutableStateFlow<InvestmentDetailUiState> get() = uiStateFlow
+    val uiState: StateFlow<InvestmentDetailUiState> get() = uiStateFlow
+
+    fun updateTickerName(newValue: String) {
+        uiStateFlow.update {
+            it.copy(tickerName = newValue)
+        }
+    }
 
     fun updateCurrentValue(newValue: String) {
-        val decimalFormat = NumberFormat.getInstance() as DecimalFormat
-        decimalFormat.isParseBigDecimal = true
-        decimalFormat.maximumFractionDigits = 2
-        var parsedDecimal = currentInvestmentValue
-        try {
-            parsedDecimal = decimalFormat.parse(newValue) as BigDecimal
-        } catch (_: Exception) {
-        }
+        // Only allow numbers and block leading zeros
+        val cleanedStr = newValue
+            .filter { c -> c.isDigit() }
+            .dropWhile { c -> c == '0' }
 
         uiStateFlow.update {
-            it.copy(currentInvestmentValue = decimalFormat.format(parsedDecimal))
+            it.copy(currentInvestmentValue = cleanedStr)
         }
     }
 
@@ -48,6 +48,31 @@ class InvestmentDetailViewModel @Inject constructor(
         uiStateFlow.update {
             it.copy(currentPercentageToInvest = newPercentage)
         }
+    }
+
+    private suspend fun saveInvestmentAllocation() {
+
+    }
+
+    /**
+     * Convert raw input to a BigDecimal. Input will format currency as a series of numbers:
+     * EX: 78023.91 is represented as 7802391
+     * EX: 101.00 is represented as 10100
+     * EX: 0.01 is represented as 1
+     */
+    fun convertRawCurrencyInput(rawString: String): BigDecimal {
+        var formattedInput = rawString
+        if (formattedInput.length < 2) {
+            formattedInput = formattedInput.padStart(2, '0')
+        }
+        if (formattedInput.length == 2) {
+            formattedInput = "0$formattedInput"
+        }
+
+        formattedInput =
+            formattedInput.substring(0..formattedInput.length - 3) + "." + formattedInput.takeLast(2)
+
+        return BigDecimal(formattedInput)
     }
 }
 

@@ -16,9 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -69,8 +67,8 @@ fun InvestmentDetailScreen(
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text(text = "Ticker Name") },
-                    value = "",
-                    onValueChange = {},
+                    value = uiState.tickerName,
+                    onValueChange = { str: String -> investmentDetailViewModel.updateTickerName(str) },
                     shape = RoundedCornerShape(60.dp),
                 )
             }
@@ -79,7 +77,6 @@ fun InvestmentDetailScreen(
                     .fillMaxWidth()
                     .padding(top = 32.dp)
             ) {
-                var inputText by remember { mutableStateOf("") }
                 OutlinedTextField(
                     modifier = Modifier
                         .fillMaxWidth(),
@@ -88,9 +85,11 @@ fun InvestmentDetailScreen(
                         imeAction = ImeAction.Done
                     ),
                     label = { Text(text = "Current Value ($)") },
-                    value = inputText,
-                    onValueChange = {
-                        inputText = it.dropWhile { c -> c == '0' }
+                    value = uiState.currentInvestmentValue,
+                    onValueChange = { str: String ->
+                        investmentDetailViewModel.updateCurrentValue(
+                            str
+                        )
                     },
                     visualTransformation = remember { CurrencyVisualTransformation() },
                     shape = RoundedCornerShape(60.dp),
