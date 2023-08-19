@@ -60,7 +60,7 @@ class InvestmentDetailViewModel @Inject constructor(
      * EX: 101.00 is represented as 10100
      * EX: 0.01 is represented as 1
      */
-    fun convertRawCurrencyInput(rawString: String): BigDecimal {
+    fun rawCurrencyInputToBigDecimal(rawString: String): BigDecimal {
         var formattedInput = rawString
         if (formattedInput.length < 2) {
             formattedInput = formattedInput.padStart(2, '0')
@@ -70,7 +70,7 @@ class InvestmentDetailViewModel @Inject constructor(
         }
 
         formattedInput =
-            formattedInput.substring(0..formattedInput.length - 3) + "." + formattedInput.takeLast(2)
+            "${formattedInput.substring(0..formattedInput.length - 3)}.${formattedInput.takeLast(2)}"
 
         return BigDecimal(formattedInput)
     }
