@@ -1,13 +1,15 @@
 package com.cjapps.prop.data
 
 import com.cjapps.prop.IDispatcherProvider
+import com.cjapps.prop.data.database.InvestmentAllocationDao
 import com.cjapps.prop.models.InvestmentAllocation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class InvestmentRepository @Inject constructor(
-    private val dispatcherProvider: IDispatcherProvider
+    private val dispatcherProvider: IDispatcherProvider,
+    private val investmentAllocationDao: InvestmentAllocationDao
 ) : IInvestmentRepository {
     private val investments: MutableList<InvestmentAllocation> =
         listOf<InvestmentAllocation>().toMutableList()
@@ -18,6 +20,7 @@ class InvestmentRepository @Inject constructor(
 
         return withContext(dispatcherProvider.IO) {
             delay(2000L)
+
 //            listOf(
 //                InvestmentAllocation("SCHB", BigDecimal("0.23"), BigDecimal("54797.12")),
 //                InvestmentAllocation("SCHC", BigDecimal("0.54"), BigDecimal("12000.67")),

@@ -33,13 +33,13 @@ class InvestmentSummaryViewModel @Inject constructor(
 
     fun onAddInvestmentTapped() {
         viewModelScope.launch {
-            investmentRepository.addInvestment(
-                InvestmentAllocation(
-                    "MSFT",
-                    BigDecimal("0.08"),
-                    BigDecimal("230.11")
-                )
-            )
+//            investmentRepository.addInvestment(
+//                InvestmentAllocation(
+//                    "MSFT",
+//                    BigDecimal("0.08"),
+//                    BigDecimal("230.11")
+//                )
+//            )
             // TODO: the repo will eventually be flows so manually updating will be unnecessary
             retrieveInvestments()
         }

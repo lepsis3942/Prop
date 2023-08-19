@@ -3,6 +3,7 @@ package com.cjapps.prop.models
 import java.math.BigDecimal
 
 data class InvestmentAllocation(
+    val id: Int?,
     val tickerName: String,
     val desiredPercentage: BigDecimal,
     val currentInvestedAmount: BigDecimal
