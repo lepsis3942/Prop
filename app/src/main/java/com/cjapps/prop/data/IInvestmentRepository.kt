@@ -1,8 +1,9 @@
 package com.cjapps.prop.data
 
 import com.cjapps.prop.models.InvestmentAllocation
+import kotlinx.coroutines.flow.Flow
 
 interface IInvestmentRepository {
-    suspend fun getInvestments(): List<InvestmentAllocation>
+    fun getInvestments(): Flow<List<InvestmentAllocation>>
     suspend fun addInvestment(investment: InvestmentAllocation)
 }

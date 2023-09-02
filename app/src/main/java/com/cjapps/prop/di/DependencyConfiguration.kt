@@ -8,6 +8,8 @@ import com.cjapps.prop.data.IInvestmentRepository
 import com.cjapps.prop.data.InvestmentRepository
 import com.cjapps.prop.data.database.AppDatabase
 import com.cjapps.prop.data.database.InvestmentAllocationDao
+import com.cjapps.prop.data.mappers.DaoMapper
+import com.cjapps.prop.data.mappers.IDaoMapper
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -34,6 +36,9 @@ abstract class RepositoryModule {
     abstract fun bindInvestmentRepository(
         investmentRepository: InvestmentRepository
     ): IInvestmentRepository
+
+    @Binds
+    abstract fun bindDaoMapper(daoMapper: DaoMapper): IDaoMapper
 }
 
 @Module
