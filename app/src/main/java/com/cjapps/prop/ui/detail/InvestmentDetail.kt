@@ -8,9 +8,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -64,10 +68,18 @@ fun InvestmentDetailScreen(
             TopAppBar(
                 title = {
                     Text(
-                        "Create",
+                        stringResource(id = R.string.investment_detail_page_title),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
+                },
+                navigationIcon = {
+                    IconButton(onClick = navigateHome) {
+                        Icon(
+                            imageVector = Icons.Rounded.ArrowBack,
+                            contentDescription = stringResource(id = R.string.page_back_content_description)
+                        )
+                    }
                 },
                 actions = {
                     TextButton(
@@ -77,7 +89,10 @@ fun InvestmentDetailScreen(
                                 navigateHome
                             )
                         }) {
-                        Text(text = "Save", style = MaterialTheme.typography.titleMedium)
+                        Text(
+                            text = stringResource(id = R.string.investment_detail_save_button),
+                            style = MaterialTheme.typography.titleMedium
+                        )
                     }
                 }
             )
@@ -105,7 +120,7 @@ fun InvestmentDetailScreen(
                 ) {
                     OutlinedTextField(
                         modifier = Modifier.fillMaxWidth(),
-                        label = { Text(text = "Ticker Name") },
+                        label = { Text(text = stringResource(id = R.string.investment_detail_ticker_input_title)) },
                         value = uiState.tickerName,
                         onValueChange = { str: String ->
                             investmentDetailViewModel.updateTickerName(
@@ -127,7 +142,7 @@ fun InvestmentDetailScreen(
                             keyboardType = KeyboardType.Number,
                             imeAction = ImeAction.Done
                         ),
-                        label = { Text(text = "Current Value ($)") },
+                        label = { Text(text = stringResource(id = R.string.investment_detail_current_value_input_title)) },
                         value = uiState.currentInvestmentValue,
                         onValueChange = { str: String ->
                             investmentDetailViewModel.updateCurrentValue(

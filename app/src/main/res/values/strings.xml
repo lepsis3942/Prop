@@ -1,7 +1,12 @@
 <resources>
     <string name="app_name">Prop</string>
+    <string name="page_back_content_description">Back</string>
     <string name="ok">OK</string>
     <string name="generic_error">An error occurred</string>
     <string name="investment_detail_error_dialog_title">Error</string>
     <string name="investment_detail_error_duplicate_ticker">A ticker with this name already exists</string>
+    <string name="investment_detail_page_title">Create</string>
+    <string name="investment_detail_save_button">Save</string>
+    <string name="investment_detail_current_value_input_title">Current Value ($)</string>
+    <string name="investment_detail_ticker_input_title">Ticker Name</string>
 </resources>
