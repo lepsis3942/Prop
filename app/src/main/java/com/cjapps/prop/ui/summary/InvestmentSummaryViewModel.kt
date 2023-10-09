@@ -49,7 +49,7 @@ class InvestmentSummaryViewModel @Inject constructor(
                 uiStateFlow.update { uiState ->
                     uiState.copy(
                         isLoading = false,
-                        investmentAllocations = investments,
+                        investmentAllocations = investments.sortedByDescending { it.desiredPercentage },
                         totalForAllInvestments = calculateInvestmentTotal(investments)
                     )
                 }

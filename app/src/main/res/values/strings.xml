@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Prop</string>
+    <string name="ok">OK</string>
+    <string name="generic_error">An error occurred</string>
+    <string name="investment_detail_error_dialog_title">Error</string>
+    <string name="investment_detail_error_duplicate_ticker">A ticker with this name already exists</string>
 </resources>

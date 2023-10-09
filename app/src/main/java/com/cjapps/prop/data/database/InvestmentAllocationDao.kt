@@ -15,7 +15,7 @@ interface InvestmentAllocationDao {
     fun getAll(): Flow<List<InvestmentAllocation>>
 
     @Query("SELECT * FROM investmentallocation WHERE ticker_name = :tickerName")
-    fun getAllByTickerName(tickerName: String): List<InvestmentAllocation>
+    suspend fun getAllByTickerName(tickerName: String): List<InvestmentAllocation>
 
     @Insert
     suspend fun insert(investmentAllocation: InvestmentAllocation)

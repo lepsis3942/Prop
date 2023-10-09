@@ -5,5 +5,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface IInvestmentRepository {
     fun getInvestments(): Flow<List<InvestmentAllocation>>
-    suspend fun addInvestment(investment: InvestmentAllocation)
+    suspend fun addInvestment(investment: InvestmentAllocation): Result<Unit>
 }
