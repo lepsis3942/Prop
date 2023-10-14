@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun DraggableNumberSelectionBar(
+    modifier: Modifier = Modifier,
     height: Dp,
     width: Dp,
     startingNumber: Int,
@@ -48,7 +49,7 @@ fun DraggableNumberSelectionBar(
         MaterialTheme.typography.titleSmall.copy(MaterialTheme.colorScheme.onSurface)
 
     Box(
-        Modifier
+        modifier
             .pointerInput(Unit) {
                 detectVerticalDragGestures(onVerticalDrag = { change, dragAmount ->
                     change.consume()

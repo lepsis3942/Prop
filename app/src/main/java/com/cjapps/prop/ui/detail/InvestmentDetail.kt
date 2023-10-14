@@ -1,5 +1,7 @@
 package com.cjapps.prop.ui.detail
 
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,6 +29,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -46,6 +50,7 @@ fun InvestmentDetailScreen(
     navigateHome: () -> Unit
 ) {
     val uiState by investmentDetailViewModel.uiState.collectAsStateWithLifecycle()
+    val focusManager = LocalFocusManager.current
 
     val errorMessage = when (uiState.errorState) {
         is ErrorUiState.DuplicateTickerError -> stringResource(id = R.string.investment_detail_error_duplicate_ticker)
@@ -157,6 +162,13 @@ fun InvestmentDetailScreen(
                     modifier = Modifier
                         .padding(top = 32.dp)
                         .fillMaxSize()
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onTap = {
+                                    focusManager.clearFocus()
+                                }
+                            )
+                        }
                 ) {
                     Column(
                         modifier = Modifier.fillMaxSize(),
@@ -169,6 +181,12 @@ fun InvestmentDetailScreen(
                             style = MaterialTheme.typography.titleMedium
                         )
                         DraggableNumberSelectionBar(
+                            modifier = Modifier.focusable(true),
+//                            Modifier.pointerInput(Unit) {
+//                                detectTapGestures(onTap = {
+//                                    focusManager.clearFocus()
+//                                })
+//                            },
                             height = 200.dp,
                             width = 60.dp,
                             startingNumber = uiState.currentPercentageToInvest,
