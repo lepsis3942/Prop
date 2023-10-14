@@ -1,6 +1,5 @@
 package com.cjapps.prop.ui.detail
 
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -181,12 +180,6 @@ fun InvestmentDetailScreen(
                             style = MaterialTheme.typography.titleMedium
                         )
                         DraggableNumberSelectionBar(
-                            modifier = Modifier.focusable(true),
-//                            Modifier.pointerInput(Unit) {
-//                                detectTapGestures(onTap = {
-//                                    focusManager.clearFocus()
-//                                })
-//                            },
                             height = 200.dp,
                             width = 60.dp,
                             startingNumber = uiState.currentPercentageToInvest,
