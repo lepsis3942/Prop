@@ -20,6 +20,7 @@ class InvestmentSummaryViewModel @Inject constructor(
     private val uiStateFlow = MutableStateFlow(
         HomeScreenUiState(
             isLoading = true,
+            isInvestButtonEnabled = false,
             investmentAllocations = listOf(),
             totalForAllInvestments = BigDecimal.ZERO
         )
@@ -33,22 +34,21 @@ class InvestmentSummaryViewModel @Inject constructor(
 
     fun onInvestTapped() {
         viewModelScope.launch {
-            investmentRepository.addInvestment(
-                InvestmentAllocation(
-                    tickerName = "MSFT",
-                    desiredPercentage = BigDecimal("8"),
-                    currentInvestedAmount = BigDecimal("230.11")
-                )
-            )
+
         }
     }
 
     private fun retrieveInvestments() {
         viewModelScope.launch {
             investmentRepository.getInvestments().collect { investments ->
+                val desiredAllocationPercentageSum =
+                    investments.fold(BigDecimal.ZERO) { total, item ->
+                        total + item.desiredPercentage.divide(BigDecimal(100))
+                    }
                 uiStateFlow.update { uiState ->
                     uiState.copy(
                         isLoading = false,
+                        isInvestButtonEnabled = desiredAllocationPercentageSum == BigDecimal(100),
                         investmentAllocations = investments.sortedByDescending { it.desiredPercentage },
                         totalForAllInvestments = calculateInvestmentTotal(investments)
                     )
@@ -63,6 +63,7 @@ class InvestmentSummaryViewModel @Inject constructor(
 
 data class HomeScreenUiState(
     val isLoading: Boolean,
+    val isInvestButtonEnabled: Boolean,
     val investmentAllocations: List<InvestmentAllocation>,
     val totalForAllInvestments: BigDecimal
 )

@@ -70,6 +70,7 @@ fun InvestmentSummaryScreen(
                 HeaderCard(
                     accountTotal = uiState.totalForAllInvestments,
                     onAddInvestmentTap = { navigateToInvestmentCreate() },
+                    investButtonEnabled = uiState.isInvestButtonEnabled,
                     onInvestTap = { investmentSummaryViewModel.onInvestTapped() },
                 )
                 InvestmentAllocations(
@@ -78,7 +79,6 @@ fun InvestmentSummaryScreen(
                         .weight(1f)
                         .padding(top = 16.dp),
                     investmentAllocations = uiState.investmentAllocations,
-                    totalForInvestedSum = uiState.totalForAllInvestments,
                     onInvestmentTapped = { id -> navigateToInvestmentUpdate(id) }
                 )
             }
@@ -111,6 +111,7 @@ fun AppTitleHeader(
 fun HeaderCard(
     modifier: Modifier = Modifier,
     accountTotal: BigDecimal,
+    investButtonEnabled: Boolean,
     onAddInvestmentTap: () -> Unit,
     onInvestTap: () -> Unit
 ) {
@@ -150,7 +151,9 @@ fun HeaderCard(
                 OutlinedButton(
                     modifier = Modifier
                         .weight(1f)
-                        .padding(start = 8.dp), onClick = onInvestTap
+                        .padding(start = 8.dp),
+                    enabled = investButtonEnabled,
+                    onClick = onInvestTap,
                 ) {
                     Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
                     Text(text = "Invest", style = MaterialTheme.typography.titleMedium)
@@ -168,7 +171,6 @@ fun HeaderCard(
 fun InvestmentAllocations(
     modifier: Modifier = Modifier,
     investmentAllocations: List<InvestmentAllocation>,
-    totalForInvestedSum: BigDecimal,
     onInvestmentTapped: (Int) -> Unit
 ) {
     LazyVerticalGrid(
@@ -182,9 +184,7 @@ fun InvestmentAllocations(
             InvestmentGridCard(
                 investmentId = investmentAllocations[index].id ?: 0,
                 investmentName = investmentAllocations[index].tickerName,
-                investmentPercentage = investmentAllocations[index].realPercentage(
-                    totalForInvestedSum
-                ),
+                investmentPercentage = investmentAllocations[index].desiredPercentage,
                 amount = investmentAllocations[index].currentInvestedAmount,
                 onTap = onInvestmentTapped
             )
@@ -219,7 +219,7 @@ fun InvestmentGridCard(
                 style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp)
             )
             Text(
-                text = investmentPercentage.asDisplayPercentage(),
+                text = investmentPercentage.divide(BigDecimal(100)).asDisplayPercentage(),
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontSize = 40.sp,
                     brush = Brush.linearGradient(ExtendedTheme.colors.gradientColorList)
