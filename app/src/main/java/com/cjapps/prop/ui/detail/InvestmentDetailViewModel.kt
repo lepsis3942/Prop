@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.cjapps.prop.IDispatcherProvider
 import com.cjapps.prop.data.IInvestmentRepository
 import com.cjapps.prop.data.exceptions.DuplicateRecordException
+import com.cjapps.prop.data.exceptions.NoEntityFoundException
 import com.cjapps.prop.models.InvestmentAllocation
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,6 +33,7 @@ class InvestmentDetailViewModel @Inject constructor(
             availablePercentageToInvest = 0
         )
     )
+    private var investmentIdToUpdate: Int? = null
 
     val uiState: StateFlow<InvestmentDetailUiState> get() = uiStateFlow
 
@@ -41,19 +43,20 @@ class InvestmentDetailViewModel @Inject constructor(
 
     private fun loadData() {
         viewModelScope.launch {
-            val investmentIdToUpdate = savedStateHandle.get<Int>("investmentId")
+            investmentIdToUpdate = savedStateHandle.get<Int>("investmentId")
             updateUiState(
                 uiStateFlow.value.copy(
                     isUpdateMode = investmentIdToUpdate != null
                 )
             )
+            val allocationUpdateId = investmentIdToUpdate // immutable prop for block logic
             investmentRepository.getInvestments().collect { investments ->
                 val availablePercentageToInvest =
                     100 - investments.fold(BigDecimal.ZERO) { total, item ->
                         total + item.desiredPercentage
                     }.toInt()
 
-                if (investmentIdToUpdate == null) {
+                if (allocationUpdateId == null) {
                     updateUiState(
                         uiStateFlow.value.copy(
                             isLoading = false,
@@ -62,7 +65,7 @@ class InvestmentDetailViewModel @Inject constructor(
                     )
                 } else {
                     val investment =
-                        investments.firstOrNull { it.id == investmentIdToUpdate.toInt() }
+                        investments.firstOrNull { it.id == allocationUpdateId.toInt() }
                             ?: return@collect
                     updateUiState(
                         uiStateFlow.value.copy(
@@ -108,27 +111,41 @@ class InvestmentDetailViewModel @Inject constructor(
     }
 
     fun saveInvestmentAllocation(navigateHome: () -> Unit) {
-        //TODO: implement update
-
         viewModelScope.launch {
             updateUiState(
                 uiStateFlow.value.copy(isLoading = true, errorState = null)
             )
             val uiState = uiState.value
-            val insertResult = investmentRepository.addInvestment(
-                InvestmentAllocation(
-                    tickerName = uiState.tickerName,
-                    currentInvestedAmount = rawCurrencyInputToBigDecimal(uiState.currentInvestmentValue),
-                    desiredPercentage = BigDecimal(uiState.currentPercentageToInvest)
-                )
+            val allocationToSave = InvestmentAllocation(
+                id = investmentIdToUpdate,  // if create flow this will be null
+                tickerName = uiState.tickerName,
+                currentInvestedAmount = rawCurrencyInputToBigDecimal(uiState.currentInvestmentValue),
+                desiredPercentage = BigDecimal(uiState.currentPercentageToInvest)
             )
-            if (insertResult.isSuccess) {
+            val saveResult: Result<Unit> = if (uiState.isUpdateMode) {
+                val id = investmentIdToUpdate
+                if (id == null) {
+                    updateUiState(
+                        uiStateFlow.value.copy(
+                            isLoading = false,
+                            errorState = ErrorUiState.UnknownError
+                        )
+                    )
+                    return@launch
+                }
+                investmentRepository.updateInvestment(allocationToSave)
+            } else {
+                investmentRepository.addInvestment(allocationToSave)
+            }
+
+            if (saveResult.isSuccess) {
                 navigateHome()
                 return@launch
             }
 
-            val error = when (insertResult.exceptionOrNull()) {
+            val error = when (saveResult.exceptionOrNull()) {
                 is DuplicateRecordException -> ErrorUiState.DuplicateTickerError
+                is NoEntityFoundException -> ErrorUiState.NoAllocationFoundError
                 else -> ErrorUiState.UnknownError
             }
             updateUiState(
@@ -191,5 +208,6 @@ data class InvestmentDetailUiState(
 
 sealed class ErrorUiState {
     data object DuplicateTickerError : ErrorUiState()
+    data object NoAllocationFoundError : ErrorUiState()
     data object UnknownError : ErrorUiState()
 }
