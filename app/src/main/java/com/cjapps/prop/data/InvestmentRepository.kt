@@ -2,6 +2,7 @@ package com.cjapps.prop.data
 
 import com.cjapps.prop.data.database.InvestmentAllocationDao
 import com.cjapps.prop.data.exceptions.DuplicateRecordException
+import com.cjapps.prop.data.exceptions.NoEntityFoundException
 import com.cjapps.prop.data.mappers.IDaoMapper
 import com.cjapps.prop.models.InvestmentAllocation
 import kotlinx.coroutines.flow.Flow
@@ -26,6 +27,17 @@ class InvestmentRepository @Inject constructor(
         }
 
         investmentAllocationDao.insert(daoMapper.investmentAllocationToEntity(investment))
+        return Result.success(Unit)
+    }
+
+    override suspend fun updateInvestment(investment: InvestmentAllocation): Result<Unit> {
+        val result =
+            investmentAllocationDao.update(daoMapper.investmentAllocationToEntity(investment))
+
+        if (result == 0) {
+            return Result.failure(NoEntityFoundException())
+        }
+
         return Result.success(Unit)
     }
 }

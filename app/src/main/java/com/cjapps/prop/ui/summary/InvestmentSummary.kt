@@ -1,5 +1,6 @@
 package com.cjapps.prop.ui.summary
 
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -28,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -43,7 +45,8 @@ import java.math.BigDecimal
 fun InvestmentSummaryScreen(
     modifier: Modifier = Modifier,
     investmentSummaryViewModel: InvestmentSummaryViewModel = viewModel(),
-    navigateToInvestmentCreate: () -> Unit
+    navigateToInvestmentCreate: () -> Unit,
+    navigateToInvestmentUpdate: (Int) -> Unit
 ) {
     val uiState by investmentSummaryViewModel.uiState.collectAsStateWithLifecycle()
 
@@ -76,6 +79,7 @@ fun InvestmentSummaryScreen(
                         .padding(top = 16.dp),
                     investmentAllocations = uiState.investmentAllocations,
                     totalForInvestedSum = uiState.totalForAllInvestments,
+                    onInvestmentTapped = { id -> navigateToInvestmentUpdate(id) }
                 )
             }
         }
@@ -164,7 +168,8 @@ fun HeaderCard(
 fun InvestmentAllocations(
     modifier: Modifier = Modifier,
     investmentAllocations: List<InvestmentAllocation>,
-    totalForInvestedSum: BigDecimal
+    totalForInvestedSum: BigDecimal,
+    onInvestmentTapped: (Int) -> Unit
 ) {
     LazyVerticalGrid(
         modifier = modifier,
@@ -175,11 +180,13 @@ fun InvestmentAllocations(
     ) {
         items(investmentAllocations.size, itemContent = { index ->
             InvestmentGridCard(
+                investmentId = investmentAllocations[index].id ?: 0,
                 investmentName = investmentAllocations[index].tickerName,
                 investmentPercentage = investmentAllocations[index].realPercentage(
                     totalForInvestedSum
                 ),
-                amount = investmentAllocations[index].currentInvestedAmount
+                amount = investmentAllocations[index].currentInvestedAmount,
+                onTap = onInvestmentTapped
             )
         })
     }
@@ -187,12 +194,20 @@ fun InvestmentAllocations(
 
 @Composable
 fun InvestmentGridCard(
-    investmentName: String, investmentPercentage: BigDecimal, amount: BigDecimal
+    investmentId: Int,
+    investmentName: String,
+    investmentPercentage: BigDecimal,
+    amount: BigDecimal,
+    onTap: (Int) -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .wrapContentHeight(), colors = CardDefaults.cardColors(
+            .wrapContentHeight()
+            .pointerInput(Unit) {
+                detectTapGestures { onTap(investmentId) }
+            },
+        colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer.copy(
                 alpha = 0.4f
             )

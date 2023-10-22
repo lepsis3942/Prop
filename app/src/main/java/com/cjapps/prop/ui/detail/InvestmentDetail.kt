@@ -72,7 +72,12 @@ fun InvestmentDetailScreen(
             TopAppBar(
                 title = {
                     Text(
-                        stringResource(id = R.string.investment_detail_page_title),
+                        stringResource(
+                            id = if (uiState.isUpdateMode)
+                                R.string.investment_detail_page_title_update
+                            else
+                                R.string.investment_detail_page_title_create
+                        ),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )

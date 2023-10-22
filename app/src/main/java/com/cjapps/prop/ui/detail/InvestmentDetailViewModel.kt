@@ -1,5 +1,6 @@
 package com.cjapps.prop.ui.detail
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cjapps.prop.IDispatcherProvider
@@ -17,12 +18,14 @@ import javax.inject.Inject
 @HiltViewModel
 class InvestmentDetailViewModel @Inject constructor(
     private val dispatcherProvider: IDispatcherProvider,
+    private val savedStateHandle: SavedStateHandle,
     private val investmentRepository: IInvestmentRepository,
 ) : ViewModel() {
     private val uiStateFlow = MutableStateFlow(
         InvestmentDetailUiState(
             isLoading = true,
             isSaveEnabled = false,
+            isUpdateMode = false,
             tickerName = "",
             currentInvestmentValue = "",
             currentPercentageToInvest = 0,
@@ -38,18 +41,39 @@ class InvestmentDetailViewModel @Inject constructor(
 
     private fun loadData() {
         viewModelScope.launch {
+            val investmentIdToUpdate = savedStateHandle.get<Int>("investmentId")
+            updateUiState(
+                uiStateFlow.value.copy(
+                    isUpdateMode = investmentIdToUpdate != null
+                )
+            )
             investmentRepository.getInvestments().collect { investments ->
                 val availablePercentageToInvest =
                     100 - investments.fold(BigDecimal.ZERO) { total, item ->
                         total + item.desiredPercentage
                     }.toInt()
 
-                updateUiState(
-                    uiStateFlow.value.copy(
-                        isLoading = false,
-                        availablePercentageToInvest = availablePercentageToInvest
+                if (investmentIdToUpdate == null) {
+                    updateUiState(
+                        uiStateFlow.value.copy(
+                            isLoading = false,
+                            availablePercentageToInvest = availablePercentageToInvest
+                        )
                     )
-                )
+                } else {
+                    val investment =
+                        investments.firstOrNull { it.id == investmentIdToUpdate.toInt() }
+                            ?: return@collect
+                    updateUiState(
+                        uiStateFlow.value.copy(
+                            isLoading = false,
+                            availablePercentageToInvest = availablePercentageToInvest,
+                            tickerName = investment.tickerName,
+                            currentInvestmentValue = bigDecimalToRawCurrency(investment.currentInvestedAmount),
+                            currentPercentageToInvest = investment.desiredPercentage.toInt()
+                        )
+                    )
+                }
             }
         }
     }
@@ -84,6 +108,8 @@ class InvestmentDetailViewModel @Inject constructor(
     }
 
     fun saveInvestmentAllocation(navigateHome: () -> Unit) {
+        //TODO: implement update
+
         viewModelScope.launch {
             updateUiState(
                 uiStateFlow.value.copy(isLoading = true, errorState = null)
@@ -132,6 +158,16 @@ class InvestmentDetailViewModel @Inject constructor(
         return BigDecimal(formattedInput)
     }
 
+    fun bigDecimalToRawCurrency(decimal: BigDecimal): String {
+        val splitDecimal = decimal.divideAndRemainder(BigDecimal.ONE)
+        val intPart = splitDecimal[0].toInt().toString()
+        val fractionalPart = splitDecimal[1].toString()
+            .drop(2)
+            .take(2)
+            .padEnd(2, '0')
+        return intPart + fractionalPart
+    }
+
     private fun updateUiState(newUiState: InvestmentDetailUiState) {
         uiStateFlow.update {
             newUiState.copy(
@@ -145,6 +181,7 @@ class InvestmentDetailViewModel @Inject constructor(
 data class InvestmentDetailUiState(
     val isLoading: Boolean,
     val isSaveEnabled: Boolean,
+    val isUpdateMode: Boolean,
     val tickerName: String,
     val currentInvestmentValue: String,
     val currentPercentageToInvest: Int,
