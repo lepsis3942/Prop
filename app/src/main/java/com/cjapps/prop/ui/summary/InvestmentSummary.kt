@@ -14,7 +14,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowForward
+import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -68,10 +68,18 @@ fun InvestmentSummaryScreen(
                 }
             } else {
                 HeaderCard(
+                    modifier.padding(bottom = 16.dp),
                     accountTotal = uiState.totalForAllInvestments,
                     onAddInvestmentTap = { navigateToInvestmentCreate() },
                     investButtonEnabled = uiState.isInvestButtonEnabled,
                     onInvestTap = { investmentSummaryViewModel.onInvestTapped() },
+                )
+                PercentageProgressIndicator(
+                    modifier = Modifier.padding(horizontal = ThemeDefaults.pagePadding),
+                    currentProgress = 56,
+                    backgroundColor = MaterialTheme.colorScheme.errorContainer,
+                    barHeight = 40.dp,
+                    fillBrush = Brush.linearGradient(ExtendedTheme.colors.gradientColorList),
                 )
                 InvestmentAllocations(
                     modifier = Modifier
@@ -159,7 +167,7 @@ fun HeaderCard(
                     Text(text = "Invest", style = MaterialTheme.typography.titleMedium)
                     Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
                     Icon(
-                        Icons.Rounded.ArrowForward, contentDescription = "Invest"
+                        Icons.AutoMirrored.Rounded.ArrowForward, contentDescription = "Invest"
                     )
                 }
             }
