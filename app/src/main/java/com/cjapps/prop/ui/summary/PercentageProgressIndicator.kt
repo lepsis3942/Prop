@@ -16,11 +16,10 @@ import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.clipPath
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import java.lang.Float.min
 
 @Composable
 fun PercentageProgressIndicator(
@@ -30,24 +29,26 @@ fun PercentageProgressIndicator(
     barHeight: Dp,
     fillBrush: Brush,
 ) {
+    val localDensity = LocalDensity.current
     val textMeasurer = rememberTextMeasurer()
     val percentageTextStyle =
         MaterialTheme.typography.titleSmall.copy(MaterialTheme.colorScheme.onSurface)
     val measuredProgressText = textMeasurer.measure(
         "$currentProgress%", style = percentageTextStyle,
     )
-    val progressTextSpacingDp = 5.dp
+    val progressTextSizeHeightDp = with(localDensity) { measuredProgressText.size.height.toDp() }
+    val progressTextSpacingDp = with(localDensity) { 5.toDp() }
 
     Canvas(
         modifier = modifier
             .fillMaxWidth()
-            .height(barHeight + measuredProgressText.size.height.dp + progressTextSpacingDp)
+            .height(barHeight + progressTextSizeHeightDp + progressTextSpacingDp)
     ) {
         val roundedRadius = CornerRadius(600F, 600F)
-        val progressXOffset = size.width * (currentProgress / 100F)
+        val progressXOffset = size.width * (currentProgress.coerceIn(0, 100) / 100F)
         val maxTextXOffset = size.width - measuredProgressText.size.width
         val textXOffset =
-            min(progressXOffset - (measuredProgressText.size.width / 2), maxTextXOffset)
+            (progressXOffset - (measuredProgressText.size.width / 2)).coerceIn(0F, maxTextXOffset)
 
         val regionPath = Path().apply {
             addRoundRect(

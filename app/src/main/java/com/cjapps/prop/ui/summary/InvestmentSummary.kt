@@ -75,8 +75,12 @@ fun InvestmentSummaryScreen(
                     onInvestTap = { investmentSummaryViewModel.onInvestTapped() },
                 )
                 PercentageProgressIndicator(
-                    modifier = Modifier.padding(horizontal = ThemeDefaults.pagePadding),
-                    currentProgress = 56,
+                    modifier = Modifier.padding(
+                        start = ThemeDefaults.pagePadding,
+                        end = ThemeDefaults.pagePadding,
+                        bottom = 13.dp
+                    ),
+                    currentProgress = uiState.totalAllocatedPercent,
                     backgroundColor = MaterialTheme.colorScheme.errorContainer,
                     barHeight = 40.dp,
                     fillBrush = Brush.linearGradient(ExtendedTheme.colors.gradientColorList),
@@ -84,8 +88,7 @@ fun InvestmentSummaryScreen(
                 InvestmentAllocations(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(1f)
-                        .padding(top = 16.dp),
+                        .weight(1f),
                     investmentAllocations = uiState.investmentAllocations,
                     onInvestmentTapped = { id -> navigateToInvestmentUpdate(id) }
                 )

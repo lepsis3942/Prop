@@ -2,7 +2,6 @@ package com.cjapps.prop.ui.summary
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cjapps.prop.IDispatcherProvider
 import com.cjapps.prop.data.IInvestmentRepository
 import com.cjapps.prop.models.InvestmentAllocation
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,7 +13,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class InvestmentSummaryViewModel @Inject constructor(
-    private val dispatcherProvider: IDispatcherProvider,
     private val investmentRepository: IInvestmentRepository,
 ) : ViewModel() {
     private val uiStateFlow = MutableStateFlow(
@@ -22,7 +20,8 @@ class InvestmentSummaryViewModel @Inject constructor(
             isLoading = true,
             isInvestButtonEnabled = false,
             investmentAllocations = listOf(),
-            totalForAllInvestments = BigDecimal.ZERO
+            totalForAllInvestments = BigDecimal.ZERO,
+            totalAllocatedPercent = 0
         )
     )
 
@@ -50,7 +49,8 @@ class InvestmentSummaryViewModel @Inject constructor(
                         isLoading = false,
                         isInvestButtonEnabled = desiredAllocationPercentageSum == BigDecimal(100),
                         investmentAllocations = investments.sortedByDescending { it.desiredPercentage },
-                        totalForAllInvestments = calculateInvestmentTotal(investments)
+                        totalForAllInvestments = calculateInvestmentTotal(investments),
+                        totalAllocatedPercent = calculatePercentageTotal(investments)
                     )
                 }
             }
@@ -59,11 +59,15 @@ class InvestmentSummaryViewModel @Inject constructor(
 
     private fun calculateInvestmentTotal(investmentAllocations: List<InvestmentAllocation>): BigDecimal =
         investmentAllocations.fold(BigDecimal.ZERO) { total, item -> total + item.currentInvestedAmount }
+
+    private fun calculatePercentageTotal(investmentAllocations: List<InvestmentAllocation>): Int =
+        investmentAllocations.fold(0) { total, item -> total + item.desiredPercentage.toInt() }
 }
 
 data class HomeScreenUiState(
     val isLoading: Boolean,
     val isInvestButtonEnabled: Boolean,
     val investmentAllocations: List<InvestmentAllocation>,
-    val totalForAllInvestments: BigDecimal
+    val totalForAllInvestments: BigDecimal,
+    val totalAllocatedPercent: Int
 )
