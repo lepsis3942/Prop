@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -30,10 +31,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.cjapps.prop.R
 import com.cjapps.prop.models.InvestmentAllocation
 import com.cjapps.prop.ui.extensions.asDisplayCurrency
 import com.cjapps.prop.ui.extensions.asDisplayPercentage
@@ -225,10 +228,20 @@ fun InvestmentGridCard(
         )
     ) {
         Column(Modifier.padding(12.dp)) {
-            Text(
-                text = investmentName,
-                style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp)
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = investmentName,
+                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp)
+                )
+                Icon(
+                    imageVector = Icons.Rounded.Edit,
+                    contentDescription = stringResource(id = R.string.investment_summary_edit_investment_content_description),
+                    modifier = Modifier.size(13.dp)
+                )
+            }
             Text(
                 text = investmentPercentage.divide(BigDecimal(100)).asDisplayPercentage(),
                 style = MaterialTheme.typography.titleLarge.copy(
