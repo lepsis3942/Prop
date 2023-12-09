@@ -1,13 +1,12 @@
 package com.cjapps.prop
 
+import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
 import com.cjapps.prop.ui.theme.PropComposeTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -16,8 +15,11 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge(
+            SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT)
+        )
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         setContent {
             PropComposeTheme {
                 val navController = rememberNavController()
@@ -25,12 +27,10 @@ class MainActivity : ComponentActivity() {
                     PropNavigationActions(navController)
                 }
 
-                Box(Modifier.safeDrawingPadding()) {
-                    PropNavGraph(
-                        navController = navController,
-                        navigationActions = navigationActions
-                    )
-                }
+                PropNavGraph(
+                    navController = navController,
+                    navigationActions = navigationActions
+                )
             }
         }
     }

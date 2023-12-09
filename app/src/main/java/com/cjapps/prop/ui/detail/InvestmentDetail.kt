@@ -10,8 +10,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -51,6 +53,10 @@ fun InvestmentDetailScreen(
     val uiState by investmentDetailViewModel.uiState.collectAsStateWithLifecycle()
     val focusManager = LocalFocusManager.current
 
+    if (uiState.saveCompleted == true || uiState.deleteCompleted == true) {
+        navigateHome()
+    }
+
     val errorMessage = when (uiState.errorState) {
         is ErrorUiState.DuplicateTickerError -> stringResource(id = R.string.investment_detail_error_duplicate_ticker)
         is ErrorUiState.UnknownError -> stringResource(id = R.string.generic_error)
@@ -85,22 +91,18 @@ fun InvestmentDetailScreen(
                 navigationIcon = {
                     IconButton(onClick = navigateHome) {
                         Icon(
-                            imageVector = Icons.Rounded.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
                             contentDescription = stringResource(id = R.string.page_back_content_description)
                         )
                     }
                 },
                 actions = {
-                    TextButton(
-                        enabled = uiState.isSaveEnabled,
-                        onClick = {
-                            investmentDetailViewModel.saveInvestmentAllocation(
-                                navigateHome
-                            )
-                        }) {
-                        Text(
-                            text = stringResource(id = R.string.investment_detail_save_button),
-                            style = MaterialTheme.typography.titleMedium
+                    IconButton(onClick = { investmentDetailViewModel.deleteInvestment() }) {
+                        Icon(
+                            imageVector = Icons.Rounded.Delete,
+                            contentDescription = stringResource(
+                                id = R.string.investment_detail_delete_button_content_desc
+                            ),
                         )
                     }
                 }
@@ -165,7 +167,7 @@ fun InvestmentDetailScreen(
                 Row(
                     modifier = Modifier
                         .padding(top = 32.dp)
-                        .fillMaxSize()
+                        .weight(weight = 1.0f)
                         .pointerInput(Unit) {
                             detectTapGestures(
                                 onTap = {
@@ -197,6 +199,21 @@ fun InvestmentDetailScreen(
                                 )
                             }
                         )
+                    }
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 32.dp, bottom = ThemeDefaults.pagePadding),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Button(
+                        modifier = Modifier.fillMaxWidth(fraction = 0.7f),
+                        enabled = uiState.isSaveEnabled,
+                        onClick = {
+                            investmentDetailViewModel.saveInvestmentAllocation()
+                        }) {
+                        Text(text = stringResource(id = R.string.investment_detail_save_button))
                     }
                 }
             }

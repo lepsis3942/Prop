@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -55,9 +56,11 @@ fun InvestmentSummaryScreen(
 
     // A surface container using the 'background' color from the theme
     Surface(
-        modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
+        modifier = Modifier.fillMaxSize()
     ) {
-        Column(modifier = modifier.fillMaxSize()) {
+        Column(modifier = modifier
+            .fillMaxSize()
+            .safeDrawingPadding()) {
             AppTitleHeader(
                 modifier
             )
@@ -98,7 +101,6 @@ fun InvestmentSummaryScreen(
             }
         }
     }
-
 }
 
 @Composable
@@ -238,7 +240,7 @@ fun InvestmentGridCard(
                 )
                 Icon(
                     imageVector = Icons.Rounded.Edit,
-                    contentDescription = stringResource(id = R.string.investment_summary_edit_investment_content_description),
+                    contentDescription = stringResource(id = R.string.investment_summary_edit_investment_content_desc),
                     modifier = Modifier.size(13.dp)
                 )
             }

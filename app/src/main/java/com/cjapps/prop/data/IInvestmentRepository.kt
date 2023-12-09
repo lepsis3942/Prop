@@ -7,4 +7,5 @@ interface IInvestmentRepository {
     fun getInvestments(): Flow<List<InvestmentAllocation>>
     suspend fun addInvestment(investment: InvestmentAllocation): Result<Unit>
     suspend fun updateInvestment(investment: InvestmentAllocation): Result<Unit>
+    suspend fun deleteInvestment(investment: InvestmentAllocation): Result<Unit>
 }

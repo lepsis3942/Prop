@@ -40,4 +40,15 @@ class InvestmentRepository @Inject constructor(
 
         return Result.success(Unit)
     }
+
+    override suspend fun deleteInvestment(investment: InvestmentAllocation): Result<Unit> {
+        val result =
+            investmentAllocationDao.delete(daoMapper.investmentAllocationToEntity(investment))
+
+        if (result == 0) {
+            return Result.failure(NoEntityFoundException())
+        }
+
+        return Result.success(Unit)
+    }
 }

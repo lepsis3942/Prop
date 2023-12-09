@@ -30,7 +30,9 @@ class InvestmentDetailViewModel @Inject constructor(
             tickerName = "",
             currentInvestmentValue = "",
             currentPercentageToInvest = 0,
-            availablePercentageToInvest = 0
+            availablePercentageToInvest = 0,
+            saveCompleted = null,
+            deleteCompleted = null,
         )
     )
     private var investmentIdToUpdate: Int? = null
@@ -51,7 +53,7 @@ class InvestmentDetailViewModel @Inject constructor(
             )
             val allocationUpdateId = investmentIdToUpdate // immutable prop for block logic
             investmentRepository.getInvestments().collect { investments ->
-                val availablePercentageToInvest =
+                var availablePercentageToInvest =
                     100 - investments.fold(BigDecimal.ZERO) { total, item ->
                         total + item.desiredPercentage
                     }.toInt()
@@ -67,6 +69,9 @@ class InvestmentDetailViewModel @Inject constructor(
                     val investment =
                         investments.firstOrNull { it.id == allocationUpdateId.toInt() }
                             ?: return@collect
+                    // If update mode allow increases to the max available but also allow reducing
+                    // Without this a desired percentage > available left will error out
+                    availablePercentageToInvest += investment.desiredPercentage.toInt()
                     updateUiState(
                         uiStateFlow.value.copy(
                             isLoading = false,
@@ -110,11 +115,42 @@ class InvestmentDetailViewModel @Inject constructor(
         )
     }
 
-    fun saveInvestmentAllocation(navigateHome: () -> Unit) {
+    fun deleteInvestment() {
         viewModelScope.launch {
-            updateUiState(
-                uiStateFlow.value.copy(isLoading = true, errorState = null)
+            val uiState = uiState.value
+            val allocationToDelete = InvestmentAllocation(
+                id = investmentIdToUpdate,
+                tickerName = uiState.tickerName,
+                currentInvestedAmount = rawCurrencyInputToBigDecimal(uiState.currentInvestmentValue),
+                desiredPercentage = BigDecimal(uiState.currentPercentageToInvest)
             )
+
+            val result = investmentRepository.deleteInvestment(allocationToDelete)
+
+            if (result.isSuccess) {
+                updateUiState(
+                    uiStateFlow.value.copy(
+                        isLoading = false,
+                        errorState = null,
+                        deleteCompleted = true,
+                    )
+                )
+                return@launch
+            }
+
+            val error = when (result.exceptionOrNull()) {
+                is DuplicateRecordException -> ErrorUiState.DuplicateTickerError
+                is NoEntityFoundException -> ErrorUiState.NoAllocationFoundError
+                else -> ErrorUiState.UnknownError
+            }
+            updateUiState(
+                uiStateFlow.value.copy(isLoading = false, errorState = error)
+            )
+        }
+    }
+
+    fun saveInvestmentAllocation() {
+        viewModelScope.launch {
             val uiState = uiState.value
             val allocationToSave = InvestmentAllocation(
                 id = investmentIdToUpdate,  // if create flow this will be null
@@ -139,7 +175,13 @@ class InvestmentDetailViewModel @Inject constructor(
             }
 
             if (saveResult.isSuccess) {
-                navigateHome()
+                updateUiState(
+                    uiStateFlow.value.copy(
+                        isLoading = false,
+                        errorState = null,
+                        saveCompleted = true,
+                    )
+                )
                 return@launch
             }
 
@@ -203,7 +245,9 @@ data class InvestmentDetailUiState(
     val currentInvestmentValue: String,
     val currentPercentageToInvest: Int,
     val availablePercentageToInvest: Int,
-    val errorState: ErrorUiState? = null
+    val errorState: ErrorUiState? = null,
+    val saveCompleted: Boolean?,
+    val deleteCompleted: Boolean?
 )
 
 sealed class ErrorUiState {
