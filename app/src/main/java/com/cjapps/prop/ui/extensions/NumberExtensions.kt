@@ -12,3 +12,7 @@ fun BigDecimal.asDisplayPercentage(): String {
     val formatter = DecimalFormat.getPercentInstance()
     return formatter.format(this)
 }
+
+fun BigDecimal.isNumericalValueEqualTo(otherValue: BigDecimal): Boolean {
+    return this.compareTo(otherValue) == 0
+}

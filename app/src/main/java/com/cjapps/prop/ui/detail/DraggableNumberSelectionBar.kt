@@ -40,7 +40,9 @@ fun DraggableNumberSelectionBar(
     fillBrush: Brush,
     numberSelectionUpdated: (Int) -> Unit
 ) {
-    assert(startingNumber <= maxAllowedNumber)
+    if (startingNumber > maxAllowedNumber) {
+        return
+    }
     var runningDragChange by remember { mutableFloatStateOf(0f) }
     // Allow startingNumber to reflect as the updated value on each recomposition in onDragEnd callback
     val updatedStartingNumber by rememberUpdatedState(newValue = startingNumber)

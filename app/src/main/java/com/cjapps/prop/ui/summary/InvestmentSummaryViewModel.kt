@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cjapps.prop.data.IInvestmentRepository
 import com.cjapps.prop.models.InvestmentAllocation
+import com.cjapps.prop.ui.extensions.isNumericalValueEqualTo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
@@ -42,12 +43,14 @@ class InvestmentSummaryViewModel @Inject constructor(
             investmentRepository.getInvestments().collect { investments ->
                 val desiredAllocationPercentageSum =
                     investments.fold(BigDecimal.ZERO) { total, item ->
-                        total + item.desiredPercentage.divide(BigDecimal(100))
+                        total + item.desiredPercentage
                     }
                 uiStateFlow.update { uiState ->
                     uiState.copy(
                         isLoading = false,
-                        isInvestButtonEnabled = desiredAllocationPercentageSum == BigDecimal(100),
+                        isInvestButtonEnabled = desiredAllocationPercentageSum.isNumericalValueEqualTo(
+                            BigDecimal(100)
+                        ),
                         investmentAllocations = investments.sortedByDescending { it.desiredPercentage },
                         totalForAllInvestments = calculateInvestmentTotal(investments),
                         totalAllocatedPercent = calculatePercentageTotal(investments)
