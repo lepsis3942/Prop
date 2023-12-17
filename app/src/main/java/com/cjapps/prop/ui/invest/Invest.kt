@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -12,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -62,6 +64,7 @@ fun InvestScreen(
         Column(
             modifier = Modifier
                 .padding(paddingValues)
+                .imePadding()
                 .padding(horizontal = ThemeDefaults.pagePadding)
                 .fillMaxSize()
         ) {
@@ -94,11 +97,16 @@ fun InvestScreen(
                         shape = RoundedCornerShape(60.dp),
                     )
                 }
-                Row(modifier = Modifier.fillMaxSize()) {
-                    LazyColumn {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(weight = 1.0f),
+                ) {
+                    LazyColumn(verticalArrangement = Arrangement.spacedBy(15.dp)) {
                         items(items = uiState.investments) { investment ->
                             OutlinedTextField(
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier
+                                    .fillMaxWidth(),
                                 keyboardOptions = KeyboardOptions(
                                     keyboardType = KeyboardType.Number,
                                     imeAction = ImeAction.Done
@@ -115,6 +123,20 @@ fun InvestScreen(
                                 shape = RoundedCornerShape(60.dp),
                             )
                         }
+                    }
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 32.dp, bottom = ThemeDefaults.pagePadding),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Button(
+                        modifier = Modifier.fillMaxWidth(fraction = 0.7f),
+                        onClick = {
+                            investViewModel.investTapped()
+                        }) {
+                        Text(text = stringResource(id = R.string.invest_invest_button))
                     }
                 }
             }

@@ -34,7 +34,7 @@ class InvestmentSummaryViewModel @Inject constructor(
 
     private fun retrieveInvestments() {
         viewModelScope.launch {
-            investmentRepository.getInvestments().collect { investments ->
+            investmentRepository.getInvestmentsAsFlow().collect { investments ->
                 val desiredAllocationPercentageSum =
                     investments.fold(BigDecimal.ZERO) { total, item ->
                         total + item.desiredPercentage

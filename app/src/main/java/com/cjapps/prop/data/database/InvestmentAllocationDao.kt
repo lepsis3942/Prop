@@ -12,7 +12,10 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface InvestmentAllocationDao {
     @Query("SELECT * FROM investmentallocation")
-    fun getAll(): Flow<List<InvestmentAllocation>>
+    fun getAllAsFlow(): Flow<List<InvestmentAllocation>>
+
+    @Query("SELECT * FROM investmentallocation")
+    suspend fun getAll(): List<InvestmentAllocation>
 
     @Query("SELECT * FROM investmentallocation WHERE ticker_name = :tickerName")
     suspend fun getAllByTickerName(tickerName: String): List<InvestmentAllocation>

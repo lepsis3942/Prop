@@ -5,6 +5,7 @@
     <string name="generic_error">An error occurred</string>
     <string name="invest_amount_to_invest_input_title">Amount to Invest ($)</string>
     <string name="invest_page_title">Invest</string>
+    <string name="invest_invest_button">Invest</string>
     <string name="investment_detail_delete_button_content_desc">Error</string>
     <string name="investment_detail_error_dialog_title">Error</string>
     <string name="investment_detail_error_duplicate_ticker">A ticker with this name already exists</string>

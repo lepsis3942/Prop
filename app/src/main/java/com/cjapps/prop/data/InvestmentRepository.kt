@@ -14,9 +14,15 @@ class InvestmentRepository @Inject constructor(
     private val daoMapper: IDaoMapper
 ) : IInvestmentRepository {
 
-    override fun getInvestments(): Flow<List<InvestmentAllocation>> {
-        return investmentAllocationDao.getAll().map { daoList ->
+    override fun getInvestmentsAsFlow(): Flow<List<InvestmentAllocation>> {
+        return investmentAllocationDao.getAllAsFlow().map { daoList ->
             daoList.map { dao -> daoMapper.entityToInvestmentAllocation(dao) }
+        }
+    }
+
+    override suspend fun getInvestments(): List<InvestmentAllocation> {
+        return investmentAllocationDao.getAll().map { dao ->
+            daoMapper.entityToInvestmentAllocation(dao)
         }
     }
 

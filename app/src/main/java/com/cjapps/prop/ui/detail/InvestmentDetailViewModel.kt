@@ -54,36 +54,35 @@ class InvestmentDetailViewModel @Inject constructor(
                 )
             )
             val allocationUpdateId = investmentIdToUpdate // immutable prop for block logic
-            investmentRepository.getInvestments().collect { investments ->
-                var availablePercentageToInvest =
-                    100 - investments.fold(BigDecimal.ZERO) { total, item ->
-                        total + item.desiredPercentage
-                    }.toInt()
+            val investments = investmentRepository.getInvestments()
+            var availablePercentageToInvest =
+                100 - investments.fold(BigDecimal.ZERO) { total, item ->
+                    total + item.desiredPercentage
+                }.toInt()
 
-                if (allocationUpdateId == null) {
-                    updateUiState(
-                        uiStateFlow.value.copy(
-                            isLoading = false,
-                            availablePercentageToInvest = availablePercentageToInvest
-                        )
+            if (allocationUpdateId == null) {
+                updateUiState(
+                    uiStateFlow.value.copy(
+                        isLoading = false,
+                        availablePercentageToInvest = availablePercentageToInvest
                     )
-                } else {
-                    val investment =
-                        investments.firstOrNull { it.id == allocationUpdateId.toInt() }
-                            ?: return@collect
-                    // If update mode allow increases to the max available but also allow reducing
-                    // Without this a desired percentage > available left will error out
-                    availablePercentageToInvest += investment.desiredPercentage.toInt()
-                    updateUiState(
-                        uiStateFlow.value.copy(
-                            isLoading = false,
-                            availablePercentageToInvest = availablePercentageToInvest,
-                            tickerName = investment.tickerName,
-                            currentInvestmentValue = investment.currentInvestedAmount.bigDecimalToRawCurrency(),
-                            currentPercentageToInvest = investment.desiredPercentage.toInt()
-                        )
+                )
+            } else {
+                val investment =
+                    investments.firstOrNull { it.id == allocationUpdateId.toInt() }
+                        ?: return@launch
+                // If update mode allow increases to the max available but also allow reducing
+                // Without this a desired percentage > available left will error out
+                availablePercentageToInvest += investment.desiredPercentage.toInt()
+                updateUiState(
+                    uiStateFlow.value.copy(
+                        isLoading = false,
+                        availablePercentageToInvest = availablePercentageToInvest,
+                        tickerName = investment.tickerName,
+                        currentInvestmentValue = investment.currentInvestedAmount.bigDecimalToRawCurrency(),
+                        currentPercentageToInvest = investment.desiredPercentage.toInt()
                     )
-                }
+                )
             }
         }
     }
