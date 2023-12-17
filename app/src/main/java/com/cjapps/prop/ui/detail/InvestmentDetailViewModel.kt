@@ -8,6 +8,8 @@ import com.cjapps.prop.data.IInvestmentRepository
 import com.cjapps.prop.data.exceptions.DuplicateRecordException
 import com.cjapps.prop.data.exceptions.NoEntityFoundException
 import com.cjapps.prop.models.InvestmentAllocation
+import com.cjapps.prop.ui.extensions.bigDecimalToRawCurrency
+import com.cjapps.prop.ui.extensions.rawCurrencyInputToBigDecimal
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -77,7 +79,7 @@ class InvestmentDetailViewModel @Inject constructor(
                             isLoading = false,
                             availablePercentageToInvest = availablePercentageToInvest,
                             tickerName = investment.tickerName,
-                            currentInvestmentValue = bigDecimalToRawCurrency(investment.currentInvestedAmount),
+                            currentInvestmentValue = investment.currentInvestedAmount.bigDecimalToRawCurrency(),
                             currentPercentageToInvest = investment.desiredPercentage.toInt()
                         )
                     )
@@ -121,7 +123,7 @@ class InvestmentDetailViewModel @Inject constructor(
             val allocationToDelete = InvestmentAllocation(
                 id = investmentIdToUpdate,
                 tickerName = uiState.tickerName,
-                currentInvestedAmount = rawCurrencyInputToBigDecimal(uiState.currentInvestmentValue),
+                currentInvestedAmount = uiState.currentInvestmentValue.rawCurrencyInputToBigDecimal(),
                 desiredPercentage = BigDecimal(uiState.currentPercentageToInvest)
             )
 
@@ -155,7 +157,7 @@ class InvestmentDetailViewModel @Inject constructor(
             val allocationToSave = InvestmentAllocation(
                 id = investmentIdToUpdate,  // if create flow this will be null
                 tickerName = uiState.tickerName,
-                currentInvestedAmount = rawCurrencyInputToBigDecimal(uiState.currentInvestmentValue),
+                currentInvestedAmount = uiState.currentInvestmentValue.rawCurrencyInputToBigDecimal(),
                 desiredPercentage = BigDecimal(uiState.currentPercentageToInvest)
             )
             val saveResult: Result<Unit> = if (uiState.isUpdateMode) {
@@ -194,37 +196,6 @@ class InvestmentDetailViewModel @Inject constructor(
                 uiStateFlow.value.copy(isLoading = false, errorState = error)
             )
         }
-    }
-
-    /**
-     * Convert raw input to a BigDecimal. Input will format currency as a series of numbers:
-     * EX: 78023.91 is represented as 7802391
-     * EX: 101.00 is represented as 10100
-     * EX: 0.01 is represented as 1
-     */
-    fun rawCurrencyInputToBigDecimal(rawString: String): BigDecimal {
-        var formattedInput = rawString
-        if (formattedInput.length < 2) {
-            formattedInput = formattedInput.padStart(2, '0')
-        }
-        if (formattedInput.length == 2) {
-            formattedInput = "0$formattedInput"
-        }
-
-        formattedInput =
-            "${formattedInput.substring(0..formattedInput.length - 3)}.${formattedInput.takeLast(2)}"
-
-        return BigDecimal(formattedInput)
-    }
-
-    fun bigDecimalToRawCurrency(decimal: BigDecimal): String {
-        val splitDecimal = decimal.divideAndRemainder(BigDecimal.ONE)
-        val intPart = splitDecimal[0].toInt().toString()
-        val fractionalPart = splitDecimal[1].toString()
-            .drop(2)
-            .take(2)
-            .padEnd(2, '0')
-        return intPart + fractionalPart
     }
 
     private fun updateUiState(newUiState: InvestmentDetailUiState) {

@@ -50,7 +50,8 @@ fun InvestmentSummaryScreen(
     modifier: Modifier = Modifier,
     investmentSummaryViewModel: InvestmentSummaryViewModel = viewModel(),
     navigateToInvestmentCreate: () -> Unit,
-    navigateToInvestmentUpdate: (Int) -> Unit
+    navigateToInvestmentUpdate: (Int) -> Unit,
+    navigateToInvestScreen: () -> Unit
 ) {
     val uiState by investmentSummaryViewModel.uiState.collectAsStateWithLifecycle()
 
@@ -78,7 +79,7 @@ fun InvestmentSummaryScreen(
                     accountTotal = uiState.totalForAllInvestments,
                     onAddInvestmentTap = { navigateToInvestmentCreate() },
                     investButtonEnabled = uiState.isInvestButtonEnabled,
-                    onInvestTap = { investmentSummaryViewModel.onInvestTapped() },
+                    onInvestTap = { navigateToInvestScreen() },
                 )
                 PercentageProgressIndicator(
                     modifier = Modifier.padding(

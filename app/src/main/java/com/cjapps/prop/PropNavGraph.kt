@@ -10,6 +10,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.cjapps.prop.ui.detail.InvestmentDetailScreen
 import com.cjapps.prop.ui.detail.InvestmentDetailViewModel
+import com.cjapps.prop.ui.invest.InvestScreen
+import com.cjapps.prop.ui.invest.InvestViewModel
 import com.cjapps.prop.ui.summary.InvestmentSummaryScreen
 import com.cjapps.prop.ui.summary.InvestmentSummaryViewModel
 
@@ -30,7 +32,8 @@ fun PropNavGraph(
                     navigationActions.navigateToInvestmentUpdate(
                         investmentId
                     )
-                }
+                },
+                navigateToInvestScreen = navigationActions.navigateToInvestScreen
             )
         }
         composable(
@@ -49,6 +52,16 @@ fun PropNavGraph(
             val viewModel = hiltViewModel<InvestmentDetailViewModel>()
             InvestmentDetailScreen(
                 investmentDetailViewModel = viewModel,
+                navigateHome = navigationActions.navigateHome
+            )
+        }
+
+        composable(
+            route = PropDestinations.INVEST_ROUTE
+        ) {
+            val viewModel = hiltViewModel<InvestViewModel>()
+            InvestScreen(
+                investViewModel = viewModel,
                 navigateHome = navigationActions.navigateHome
             )
         }

@@ -4,6 +4,8 @@ import androidx.lifecycle.SavedStateHandle
 import com.cjapps.prop.IDispatcherProvider
 import com.cjapps.prop.MainDispatcherRule
 import com.cjapps.prop.data.IInvestmentRepository
+import com.cjapps.prop.ui.extensions.bigDecimalToRawCurrency
+import com.cjapps.prop.ui.extensions.rawCurrencyInputToBigDecimal
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit4.MockKRule
@@ -45,32 +47,32 @@ class InvestmentDetailViewModelTest {
 
     @Test
     fun convertRawCurrencyInputConvertsEmptyString() {
-        assertEquals(BigDecimal("0.00"), viewModel.rawCurrencyInputToBigDecimal(""))
+        assertEquals(BigDecimal("0.00"), "".rawCurrencyInputToBigDecimal())
     }
 
     @Test
     fun convertRawCurrencyInputConvertsZeroValues() {
-        assertEquals(BigDecimal("0.00"), viewModel.rawCurrencyInputToBigDecimal("0"))
-        assertEquals(BigDecimal("0.00"), viewModel.rawCurrencyInputToBigDecimal("00"))
-        assertEquals(BigDecimal("0.00"), viewModel.rawCurrencyInputToBigDecimal("000"))
+        assertEquals(BigDecimal("0.00"), "0".rawCurrencyInputToBigDecimal())
+        assertEquals(BigDecimal("0.00"), "00".rawCurrencyInputToBigDecimal())
+        assertEquals(BigDecimal("0.00"), "000".rawCurrencyInputToBigDecimal())
     }
 
     @Test
     fun convertRawCurrencyInputConvertsLessThanOneValues() {
-        assertEquals(BigDecimal("0.01"), viewModel.rawCurrencyInputToBigDecimal("1"))
-        assertEquals(BigDecimal("0.01"), viewModel.rawCurrencyInputToBigDecimal("01"))
-        assertEquals(BigDecimal("0.94"), viewModel.rawCurrencyInputToBigDecimal("94"))
+        assertEquals(BigDecimal("0.01"), "1".rawCurrencyInputToBigDecimal())
+        assertEquals(BigDecimal("0.01"), "01".rawCurrencyInputToBigDecimal())
+        assertEquals(BigDecimal("0.94"), "94".rawCurrencyInputToBigDecimal())
     }
 
     @Test
     fun convertRawCurrencyInputConvertsMoreThanOneValues() {
-        assertEquals(BigDecimal("1.00"), viewModel.rawCurrencyInputToBigDecimal("100"))
-        assertEquals(BigDecimal("9.01"), viewModel.rawCurrencyInputToBigDecimal("901"))
-        assertEquals(BigDecimal("7.35"), viewModel.rawCurrencyInputToBigDecimal("735"))
-        assertEquals(BigDecimal("944.58"), viewModel.rawCurrencyInputToBigDecimal("94458"))
+        assertEquals(BigDecimal("1.00"), "100".rawCurrencyInputToBigDecimal())
+        assertEquals(BigDecimal("9.01"), "901".rawCurrencyInputToBigDecimal())
+        assertEquals(BigDecimal("7.35"), "735".rawCurrencyInputToBigDecimal())
+        assertEquals(BigDecimal("944.58"), "94458".rawCurrencyInputToBigDecimal())
         assertEquals(
             BigDecimal("49823753.98"),
-            viewModel.rawCurrencyInputToBigDecimal("4982375398")
+            "4982375398".rawCurrencyInputToBigDecimal()
         )
     }
 
@@ -118,23 +120,23 @@ class InvestmentDetailViewModelTest {
 
     @Test
     fun bigDecimalToRawCurrencyStripsDecimalPoint() {
-        assertEquals("128567", viewModel.bigDecimalToRawCurrency(BigDecimal("1285.67")))
-        assertEquals("501", viewModel.bigDecimalToRawCurrency(BigDecimal("5.01")))
+        assertEquals("128567", BigDecimal("1285.67").bigDecimalToRawCurrency())
+        assertEquals("501", BigDecimal("5.01").bigDecimalToRawCurrency())
     }
 
     @Test
     fun bigDecimalToRawCurrencyPadsDecimal() {
-        assertEquals("500", viewModel.bigDecimalToRawCurrency(BigDecimal("5")))
-        assertEquals("790", viewModel.bigDecimalToRawCurrency(BigDecimal("7.9")))
+        assertEquals("500", BigDecimal("5").bigDecimalToRawCurrency())
+        assertEquals("790", BigDecimal("7.9").bigDecimalToRawCurrency())
     }
 
     @Test
     fun bigDecimalToRawCurrencyCreatesZeroCorrectly() {
-        assertEquals("000", viewModel.bigDecimalToRawCurrency(BigDecimal("0")))
+        assertEquals("000", BigDecimal("0").bigDecimalToRawCurrency())
     }
 
     @Test
     fun bigDecimalToRawCurrencyTruncatesDecimal() {
-        assertEquals("7858", viewModel.bigDecimalToRawCurrency(BigDecimal("78.5893")))
+        assertEquals("7858", BigDecimal("78.5893").bigDecimalToRawCurrency())
     }
 }
