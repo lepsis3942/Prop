@@ -44,6 +44,7 @@ import com.cjapps.prop.ui.extensions.asDisplayPercentage
 import com.cjapps.prop.ui.theme.ExtendedTheme
 import com.cjapps.prop.ui.theme.ThemeDefaults
 import java.math.BigDecimal
+import java.math.RoundingMode
 
 @Composable
 fun InvestmentSummaryScreen(
@@ -59,9 +60,11 @@ fun InvestmentSummaryScreen(
     Surface(
         modifier = Modifier.fillMaxSize()
     ) {
-        Column(modifier = modifier
-            .fillMaxSize()
-            .safeDrawingPadding()) {
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .safeDrawingPadding()
+        ) {
             AppTitleHeader(
                 modifier
             )
@@ -246,7 +249,8 @@ fun InvestmentGridCard(
                 )
             }
             Text(
-                text = investmentPercentage.divide(BigDecimal(100)).asDisplayPercentage(),
+                text = investmentPercentage.divide(BigDecimal(100), RoundingMode.HALF_EVEN)
+                    .asDisplayPercentage(),
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontSize = 40.sp,
                     brush = Brush.linearGradient(ExtendedTheme.colors.gradientColorList)

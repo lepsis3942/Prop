@@ -3,6 +3,7 @@ package com.cjapps.prop.ui.invest
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cjapps.prop.data.IInvestmentRepository
+import com.cjapps.prop.data.calculation.InvestmentCalculationStrategyFactory
 import com.cjapps.prop.ui.extensions.bigDecimalToRawCurrency
 import com.cjapps.prop.ui.extensions.rawCurrencyInputToBigDecimal
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,7 +14,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class InvestViewModel @Inject constructor(
-    private val investmentRepository: IInvestmentRepository
+    private val investmentRepository: IInvestmentRepository,
+    private val investmentStrategy: InvestmentCalculationStrategyFactory
 ) : ViewModel() {
     private val uiStateFlow = MutableStateFlow(
         InvestScreenUiState(

@@ -37,7 +37,7 @@ class InvestmentDetailViewModelTest {
     @Before
     fun setUp() {
         every { mockStateHandle.get<String>("investmentId") } returns null
-        every { mockInvestmentRepository.getInvestments() } returns flow { emit(listOf()) }
+        every { mockInvestmentRepository.getInvestmentsAsFlow() } returns flow { emit(listOf()) }
         viewModel = InvestmentDetailViewModel(
             mockDispatcher,
             mockStateHandle,
