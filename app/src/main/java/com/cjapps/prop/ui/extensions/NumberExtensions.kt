@@ -25,7 +25,7 @@ fun BigDecimal.isNumericalValueEqualTo(otherValue: BigDecimal): Boolean {
  * EX: 0.01 is represented as 1
  */
 fun String.rawCurrencyInputToBigDecimal(): BigDecimal {
-    var formattedInput = this
+    var formattedInput = this.filter { it.isDigit() }
     if (formattedInput.length < 2) {
         formattedInput = formattedInput.padStart(2, '0')
     }

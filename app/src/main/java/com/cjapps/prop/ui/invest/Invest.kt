@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -221,20 +222,25 @@ fun InvestmentCalculationComplete(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = ThemeDefaults.pagePadding),
-                        horizontalArrangement = Arrangement.SpaceAround
+//                        horizontalArrangement = Arrangement.SpaceAround
                     ) {
                         Text(
+                            modifier = Modifier.weight(weight = 2.0f),
                             text = investment.investmentName,
-                            style = MaterialTheme.typography.titleMedium
+                            style = MaterialTheme.typography.titleMedium,
+                            textAlign = TextAlign.Center
                         )
                         Icon(
+                            modifier = Modifier.weight(weight = 1.0f),
                             imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
                             contentDescription = stringResource(id = R.string.invest_calculation_arrow_content_description)
                         )
                         Text(
+                            modifier = Modifier.weight(weight = 2.0f),
                             text = investment.amountToInvest,
                             color = ExtendedTheme.colors.currencyGreen,
-                            style = MaterialTheme.typography.titleMedium
+                            style = MaterialTheme.typography.titleMedium,
+                            textAlign = TextAlign.Center
                         )
                     }
                 }
