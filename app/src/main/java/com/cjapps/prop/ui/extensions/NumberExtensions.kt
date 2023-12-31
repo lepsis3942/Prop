@@ -1,5 +1,6 @@
 package com.cjapps.prop.ui.extensions
 
+import android.icu.text.NumberFormat
 import java.math.BigDecimal
 import java.text.DecimalFormat
 
@@ -52,4 +53,12 @@ fun BigDecimal.bigDecimalToRawCurrency(): String {
         .take(2)
         .padEnd(2, '0')
     return intPart + fractionalPart
+}
+
+fun BigDecimal.bigDecimalToUiFormattedCurrency(): String {
+    val formatter = NumberFormat.getCurrencyInstance()
+    formatter.minimumFractionDigits = 2
+    formatter.maximumFractionDigits = 2
+    formatter.minimumIntegerDigits = 1
+    return formatter.format(this)
 }

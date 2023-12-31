@@ -2,6 +2,7 @@ package com.cjapps.prop.ui.invest
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,11 +14,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -35,6 +38,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.cjapps.prop.R
 import com.cjapps.prop.ui.detail.CurrencyVisualTransformation
+import com.cjapps.prop.ui.theme.ExtendedTheme
 import com.cjapps.prop.ui.theme.ThemeDefaults
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,14 +65,8 @@ fun InvestScreen(
             )
         },
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .imePadding()
-                .padding(horizontal = ThemeDefaults.pagePadding)
-                .fillMaxSize()
-        ) {
-            if (uiState.isLoading) {
+        when (val frozenState = uiState) {
+            InvestScreenUiState.Loading -> {
                 Row(
                     modifier = modifier.fillMaxSize(),
                     horizontalArrangement = Arrangement.Center,
@@ -76,67 +74,168 @@ fun InvestScreen(
                 ) {
                     CircularProgressIndicator()
                 }
-            } else {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 32.dp, bottom = 32.dp)
-                ) {
+            }
+
+            is InvestScreenUiState.AdjustingValues -> AdjustInvestmentValues(
+                modifier = modifier,
+                paddingValues = paddingValues,
+                amountToInvest = frozenState.amountToInvest,
+                investments = frozenState.investments,
+                updateAmountToInvest = investViewModel::updateAmountToInvest,
+                updateInvestmentCurrentAmount = investViewModel::updateInvestmentCurrentAmount,
+                investTapped = investViewModel::investTapped
+            )
+
+            is InvestScreenUiState.CalculationComplete -> InvestmentCalculationComplete(
+                modifier = modifier,
+                paddingValues = paddingValues,
+                amountToInvest = frozenState.amountToInvest,
+                investments = frozenState.investments
+            )
+        }
+    }
+}
+
+@Composable
+private fun AdjustInvestmentValues(
+    modifier: Modifier = Modifier,
+    paddingValues: PaddingValues,
+    amountToInvest: String,
+    investments: List<InvestmentScreenCurrentInvestmentValue>,
+    updateAmountToInvest: (String) -> Unit,
+    updateInvestmentCurrentAmount: (Int, String) -> Unit,
+    investTapped: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .padding(paddingValues)
+            .imePadding()
+            .padding(horizontal = ThemeDefaults.pagePadding)
+            .fillMaxSize()
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 32.dp, bottom = 32.dp)
+        ) {
+            OutlinedTextField(
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Done
+                ),
+                label = { Text(text = stringResource(id = R.string.invest_amount_to_invest_input_title)) },
+                value = amountToInvest,
+                onValueChange = { str: String ->
+                    updateAmountToInvest(str)
+                },
+                visualTransformation = remember { CurrencyVisualTransformation() },
+                shape = RoundedCornerShape(60.dp),
+            )
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(weight = 1.0f),
+        ) {
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(15.dp)) {
+                items(items = investments) { investment ->
                     OutlinedTextField(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth(),
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Number,
                             imeAction = ImeAction.Done
                         ),
-                        label = { Text(text = stringResource(id = R.string.invest_amount_to_invest_input_title)) },
-                        value = uiState.amountToInvest,
+                        label = { Text(text = investment.investmentName) },
+                        value = investment.investmentValue,
                         onValueChange = { str: String ->
-                            investViewModel.updateAmountToInvest(str)
+                            updateInvestmentCurrentAmount(
+                                investment.id,
+                                str
+                            )
                         },
                         visualTransformation = remember { CurrencyVisualTransformation() },
                         shape = RoundedCornerShape(60.dp),
                     )
                 }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(weight = 1.0f),
-                ) {
-                    LazyColumn(verticalArrangement = Arrangement.spacedBy(15.dp)) {
-                        items(items = uiState.investments) { investment ->
-                            OutlinedTextField(
-                                modifier = Modifier
-                                    .fillMaxWidth(),
-                                keyboardOptions = KeyboardOptions(
-                                    keyboardType = KeyboardType.Number,
-                                    imeAction = ImeAction.Done
-                                ),
-                                label = { Text(text = investment.investmentName) },
-                                value = investment.investmentValue,
-                                onValueChange = { str: String ->
-                                    investViewModel.updateInvestmentCurrentAmount(
-                                        investment.id,
-                                        str
-                                    )
-                                },
-                                visualTransformation = remember { CurrencyVisualTransformation() },
-                                shape = RoundedCornerShape(60.dp),
-                            )
-                        }
-                    }
-                }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 32.dp, bottom = ThemeDefaults.pagePadding),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Button(
-                        modifier = Modifier.fillMaxWidth(fraction = 0.7f),
-                        onClick = {
-                            investViewModel.investTapped()
-                        }) {
-                        Text(text = stringResource(id = R.string.invest_invest_button))
+            }
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 32.dp, bottom = ThemeDefaults.pagePadding),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Button(
+                modifier = Modifier.fillMaxWidth(fraction = 0.7f),
+                onClick = {
+                    investTapped()
+                }) {
+                Text(text = stringResource(id = R.string.invest_invest_button))
+            }
+        }
+    }
+}
+
+@Composable
+fun InvestmentCalculationComplete(
+    modifier: Modifier = Modifier,
+    paddingValues: PaddingValues,
+    amountToInvest: String,
+    investments: List<InvestmentScreenUpdatedInvestmentValue>
+) {
+    Column(
+        modifier = Modifier
+            .padding(paddingValues)
+            .padding(horizontal = ThemeDefaults.pagePadding)
+            .fillMaxSize()
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 32.dp, bottom = 32.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = stringResource(id = R.string.invest_amount_to_invest_title),
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Text(
+                    modifier = Modifier.padding(top = 8.dp),
+                    text = amountToInvest,
+                    color = ExtendedTheme.colors.currencyGreen,
+                    style = MaterialTheme.typography.titleLarge
+                )
+            }
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(weight = 1.0f),
+        ) {
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(15.dp)) {
+                items(items = investments) { investment ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = ThemeDefaults.pagePadding),
+                        horizontalArrangement = Arrangement.SpaceAround
+                    ) {
+                        Text(
+                            text = investment.investmentName,
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
+                            contentDescription = stringResource(id = R.string.invest_calculation_arrow_content_description)
+                        )
+                        Text(
+                            text = investment.amountToInvest,
+                            color = ExtendedTheme.colors.currencyGreen,
+                            style = MaterialTheme.typography.titleMedium
+                        )
                     }
                 }
             }

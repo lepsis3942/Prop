@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.android.material.color.MaterialColors
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -72,7 +73,9 @@ fun PropComposeTheme(
             useDynamicColors -> colorScheme.inversePrimary
             isSystemInDarkTheme() -> PurpleGrey40
             else -> PurpleGrey80
-        }
+        },
+        // Harmonize the standard currency green color with the dynamic primary color
+        currencyGreen = Color(MaterialColors.harmonizeWithPrimary(view.context, CurrencyGreenColor))
     )
     CompositionLocalProvider(LocalExtendedThemeValues provides extendedThemeValues) {
         MaterialTheme(
@@ -98,13 +101,15 @@ object ThemeDefaults {
 @Immutable
 data class PropExtendedThemeColors(
     val gradientColorList: List<Color>,
-    val inverseSecondary: Color
+    val inverseSecondary: Color,
+    val currencyGreen: Color
 )
 
 val LocalExtendedThemeValues = staticCompositionLocalOf {
     PropExtendedThemeColors(
         gradientColorList = listOf(),
-        inverseSecondary = Color.LightGray
+        inverseSecondary = Color.LightGray,
+        currencyGreen = Color(CurrencyGreenColor)
     )
 }
 

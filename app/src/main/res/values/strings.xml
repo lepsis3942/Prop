@@ -4,6 +4,8 @@
     <string name="ok">OK</string>
     <string name="generic_error">An error occurred</string>
     <string name="invest_amount_to_invest_input_title">Amount to Invest ($)</string>
+    <string name="invest_amount_to_invest_title">Amount to Invest:</string>
+    <string name="invest_calculation_arrow_content_description">Arrow</string>
     <string name="invest_page_title">Invest</string>
     <string name="invest_invest_button">Invest</string>
     <string name="investment_detail_delete_button_content_desc">Error</string>
