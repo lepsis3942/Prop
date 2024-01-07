@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
+import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -30,9 +31,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -41,10 +44,10 @@ import com.cjapps.prop.R
 import com.cjapps.prop.models.InvestmentAllocation
 import com.cjapps.prop.ui.extensions.asDisplayCurrency
 import com.cjapps.prop.ui.extensions.asDisplayPercentage
+import com.cjapps.prop.ui.extensions.isNumericalValueEqualTo
 import com.cjapps.prop.ui.theme.ExtendedTheme
 import com.cjapps.prop.ui.theme.ThemeDefaults
 import java.math.BigDecimal
-import java.math.RoundingMode
 
 @Composable
 fun InvestmentSummaryScreen(
@@ -100,6 +103,7 @@ fun InvestmentSummaryScreen(
                         .fillMaxWidth()
                         .weight(1f),
                     investmentAllocations = uiState.investmentAllocations,
+                    accountTotal = uiState.totalForAllInvestments,
                     onInvestmentTapped = { id -> navigateToInvestmentUpdate(id) }
                 )
             }
@@ -191,6 +195,7 @@ fun HeaderCard(
 fun InvestmentAllocations(
     modifier: Modifier = Modifier,
     investmentAllocations: List<InvestmentAllocation>,
+    accountTotal: BigDecimal,
     onInvestmentTapped: (Int) -> Unit
 ) {
     LazyVerticalGrid(
@@ -204,7 +209,8 @@ fun InvestmentAllocations(
             InvestmentGridCard(
                 investmentId = investmentAllocations[index].id ?: 0,
                 investmentName = investmentAllocations[index].tickerName,
-                investmentPercentage = investmentAllocations[index].desiredPercentage,
+                currentPercentage = investmentAllocations[index].realPercentage(accountTotal),
+                desiredPercentage = investmentAllocations[index].desiredPercentage,
                 amount = investmentAllocations[index].currentInvestedAmount,
                 onTap = onInvestmentTapped
             )
@@ -216,10 +222,20 @@ fun InvestmentAllocations(
 fun InvestmentGridCard(
     investmentId: Int,
     investmentName: String,
-    investmentPercentage: BigDecimal,
+    currentPercentage: BigDecimal,
+    desiredPercentage: BigDecimal,
     amount: BigDecimal,
     onTap: (Int) -> Unit
 ) {
+    val isCurrentPercentageSuccessState =
+        currentPercentage > desiredPercentage || currentPercentage.isNumericalValueEqualTo(
+            desiredPercentage
+        )
+    val desiredPercentageColor = if (isCurrentPercentageSuccessState) {
+        ExtendedTheme.colors.currencyGreen
+    } else {
+        MaterialTheme.colorScheme.error.copy(alpha = 0.8f)
+    }
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -248,18 +264,62 @@ fun InvestmentGridCard(
                     modifier = Modifier.size(13.dp)
                 )
             }
-            Text(
-                text = investmentPercentage.divide(BigDecimal(100), RoundingMode.HALF_EVEN)
-                    .asDisplayPercentage(),
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontSize = 40.sp,
-                    brush = Brush.linearGradient(ExtendedTheme.colors.gradientColorList)
+            Row {
+                Text(
+                    modifier = Modifier.alignByBaseline(),
+                    text = desiredPercentage.divide(BigDecimal(100)).asDisplayPercentage(),
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontSize = 40.sp,
+                        brush = Brush.linearGradient(ExtendedTheme.colors.gradientColorList)
+                    )
                 )
-            )
+                PercentageWithArrow(
+                    modifier = Modifier
+                        .alignByBaseline()
+                        .padding(start = 10.dp),
+                    percentage = currentPercentage,
+                    textStyle = MaterialTheme.typography.titleLarge.copy(
+                        fontSize = 16.sp,
+                        color = desiredPercentageColor
+                    ),
+                    displayArrow = currentPercentage > desiredPercentage && !currentPercentage.isNumericalValueEqualTo(
+                        desiredPercentage
+                    ),
+                    arrowUp = currentPercentage > desiredPercentage,
+                    arrowContentDescription = stringResource(id = R.string.investment_summary_current_percentage_content_desc)
+                )
+            }
             Text(
                 modifier = Modifier.padding(top = 12.dp),
                 text = amount.asDisplayCurrency(),
                 style = MaterialTheme.typography.titleMedium
+            )
+        }
+    }
+}
+
+@Composable
+fun PercentageWithArrow(
+    modifier: Modifier,
+    percentage: BigDecimal,
+    textStyle: TextStyle,
+    displayArrow: Boolean,
+    arrowUp: Boolean,
+    arrowContentDescription: String
+) {
+    Row(modifier = modifier, verticalAlignment = Alignment.Top) {
+        Text(
+            text = percentage.divide(BigDecimal(100)).asDisplayPercentage(),
+            style = textStyle
+        )
+        if (displayArrow) {
+            Icon(
+                imageVector = if (arrowUp) Icons.Rounded.ArrowDropDown else Icons.Rounded.ArrowDropDown,
+                contentDescription = arrowContentDescription,
+                modifier = Modifier
+                    .size(14.dp)
+                    .rotate(if (arrowUp) 180f else 0f),
+                tint = textStyle.color
             )
         }
     }

@@ -2,6 +2,7 @@ package com.cjapps.prop.ui.extensions
 
 import android.icu.text.NumberFormat
 import java.math.BigDecimal
+import java.math.RoundingMode
 import java.text.DecimalFormat
 
 fun BigDecimal.asDisplayCurrency(): String {
@@ -11,6 +12,7 @@ fun BigDecimal.asDisplayCurrency(): String {
 
 fun BigDecimal.asDisplayPercentage(): String {
     val formatter = DecimalFormat.getPercentInstance()
+    formatter.roundingMode = RoundingMode.HALF_EVEN
     return formatter.format(this)
 }
 

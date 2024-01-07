@@ -13,7 +13,10 @@ data class InvestmentAllocation(
         return desiredAmount - currentInvestedAmount
     }
 
+    /**
+     * Percentage as an integer out of 100
+     */
     fun realPercentage(totalForAllAccounts: BigDecimal): BigDecimal {
-        return currentInvestedAmount / totalForAllAccounts
+        return (currentInvestedAmount / totalForAllAccounts) * BigDecimal(100)
     }
 }
