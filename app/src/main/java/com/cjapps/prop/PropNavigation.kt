@@ -9,6 +9,7 @@ object PropDestinations {
     const val CREATE_INVESTMENT_ROUTE = "investment/create"
     const val UPDATE_INVESTMENT_ROUTE = "investment/{investmentId}"
     const val INVEST_ROUTE = "invest"
+    const val INVEST_SUMMARY_ROUTE = "invest/summary?amountToInvest={amountToInvest}"
 }
 
 class PropNavigationActions(navController: NavController) {
@@ -44,5 +45,19 @@ class PropNavigationActions(navController: NavController) {
             popUpTo(navController.graph.findStartDestination().id)
             launchSingleTop = true
         }
+    }
+
+    val navigateToInvestResultSummary: (amountToInvest: String) -> Unit = {
+        navController.navigate(
+            PropDestinations.INVEST_SUMMARY_ROUTE.withNavParameters(
+                mapOf("amountToInvest" to it)
+            )
+        ) {
+            launchSingleTop = true
+        }
+    }
+
+    val navigateBack: () -> Unit = {
+        navController.popBackStack()
     }
 }

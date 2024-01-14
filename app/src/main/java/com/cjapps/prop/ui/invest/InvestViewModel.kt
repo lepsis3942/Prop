@@ -3,10 +3,8 @@ package com.cjapps.prop.ui.invest
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cjapps.prop.data.IInvestmentRepository
-import com.cjapps.prop.data.calculation.InvestmentCalculationStrategyFactory
 import com.cjapps.prop.models.InvestmentAllocation
 import com.cjapps.prop.ui.extensions.bigDecimalToRawCurrency
-import com.cjapps.prop.ui.extensions.bigDecimalToUiFormattedCurrency
 import com.cjapps.prop.ui.extensions.rawCurrencyInputToBigDecimal
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,12 +15,12 @@ import javax.inject.Inject
 @HiltViewModel
 class InvestViewModel @Inject constructor(
     private val investmentRepository: IInvestmentRepository,
-    private val investmentStrategyFactory: InvestmentCalculationStrategyFactory
 ) : ViewModel() {
     private val uiStateFlow = MutableStateFlow<InvestScreenUiState>(
         InvestScreenUiState.Loading
     )
-    private val investmentCalculationStrategy get() = investmentStrategyFactory.getInvestmentCalculationStrategy()
+    private var amountToInvest: String = ""
+    private var investmentAmounts: List<InvestmentScreenCurrentInvestmentValue> = emptyList()
 
     val uiState: MutableStateFlow<InvestScreenUiState> get() = uiStateFlow
 
@@ -32,27 +30,32 @@ class InvestViewModel @Inject constructor(
 
     private fun loadData() {
         viewModelScope.launch {
-            val investmentUiValues = investmentRepository.getInvestments().map { investment ->
-                InvestmentScreenCurrentInvestmentValue(
-                    id = investment.id ?: -1,
-                    investmentName = investment.tickerName,
-                    investmentValue = investment.currentInvestedAmount.bigDecimalToRawCurrency()
-                )
-            }
-            uiStateFlow.update {
-                InvestScreenUiState.AdjustingValues(
-                    amountToInvest = "", investments = investmentUiValues
-                )
+            investmentRepository.getInvestmentsAsFlow().collect {
+                val investmentUiValues = it.map { investment ->
+                    InvestmentScreenCurrentInvestmentValue(
+                        id = investment.id ?: -1,
+                        investmentName = investment.tickerName,
+                        investmentValue = investment.currentInvestedAmount.bigDecimalToRawCurrency()
+                    )
+                }
+                investmentAmounts = investmentUiValues
+                uiStateFlow.update {
+                    InvestScreenUiState.AdjustingValues(
+                        amountToInvest = amountToInvest, investments = investmentUiValues
+                    )
+                }
             }
         }
     }
 
-    fun updateAmountToInvest(amountToInvest: String) {
+    fun updateAmountToInvest(newAmountToInvest: String) {
         uiStateFlow.update { uiState ->
             if (uiState !is InvestScreenUiState.AdjustingValues) {
+                // This shouldn't happen under normal circumstances
                 return@update uiState
             }
-            uiState.copy(amountToInvest = amountToInvest)
+            amountToInvest = newAmountToInvest
+            uiState.copy(amountToInvest = newAmountToInvest)
         }
     }
 
@@ -62,43 +65,31 @@ class InvestViewModel @Inject constructor(
                 return@update uiState
             }
 
-            uiState.copy(investments = uiState.investments.map {
+            val updatedInvestments = uiState.investments.map {
                 if (it.id == id) {
                     InvestmentScreenCurrentInvestmentValue(
-                        it.id, investmentName = it.investmentName, investmentValue = updatedValue
+                        it.id,
+                        investmentName = it.investmentName,
+                        investmentValue = updatedValue
                     )
                 } else it
-            })
+            }
+            investmentAmounts = updatedInvestments
+            uiState.copy(investments = updatedInvestments)
         }
     }
 
     fun investTapped() {
-        viewModelScope.launch {
-            val uiState = uiStateFlow.value
-            if (uiState !is InvestScreenUiState.AdjustingValues) {
-                return@launch
-            }
-            val updatedUiInvestments = uiState.investments
-            val amountToInvestBigDecimal = uiState.amountToInvest.rawCurrencyInputToBigDecimal()
-            val updatedInvestmentAllocations = updateInvestmentValues(updatedUiInvestments)
-            val calculatedInvestments = investmentCalculationStrategy.calculatePurchaseAmounts(
-                updatedInvestmentAllocations,
-                amountToInvestBigDecimal
-            )
-            uiStateFlow.update {
-                InvestScreenUiState.CalculationComplete(
-                    amountToInvest = amountToInvestBigDecimal.bigDecimalToUiFormattedCurrency(),
-                    investments = calculatedInvestments.map { entry ->
-                        val investment = entry.key
-                        InvestmentScreenUpdatedInvestmentValue(
-                            id = investment.id ?: -1,
-                            investmentName = investment.tickerName,
-                            amountToInvest = entry.value.bigDecimalToUiFormattedCurrency()
-                        )
-                    }
-                )
+        uiStateFlow.update {
+            InvestScreenUiState.InvestRequested(amountToInvest = amountToInvest)
+        }
+    }
 
-            }
+    fun navigationComplete() {
+        uiStateFlow.update {
+            InvestScreenUiState.AdjustingValues(
+                amountToInvest = amountToInvest, investments = investmentAmounts
+            )
         }
     }
 
@@ -125,19 +116,14 @@ class InvestViewModel @Inject constructor(
 
 sealed class InvestScreenUiState {
     data object Loading : InvestScreenUiState()
+
     data class AdjustingValues(
         val amountToInvest: String, val investments: List<InvestmentScreenCurrentInvestmentValue>
     ) : InvestScreenUiState()
 
-    data class CalculationComplete(
-        val amountToInvest: String, val investments: List<InvestmentScreenUpdatedInvestmentValue>
-    ) : InvestScreenUiState()
+    data class InvestRequested(val amountToInvest: String) : InvestScreenUiState()
 }
 
 data class InvestmentScreenCurrentInvestmentValue(
     val id: Int, val investmentName: String, val investmentValue: String
-)
-
-data class InvestmentScreenUpdatedInvestmentValue(
-    val id: Int, val investmentName: String, val amountToInvest: String
 )

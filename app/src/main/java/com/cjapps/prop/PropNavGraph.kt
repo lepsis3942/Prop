@@ -12,6 +12,8 @@ import com.cjapps.prop.ui.detail.InvestmentDetailScreen
 import com.cjapps.prop.ui.detail.InvestmentDetailViewModel
 import com.cjapps.prop.ui.invest.InvestScreen
 import com.cjapps.prop.ui.invest.InvestViewModel
+import com.cjapps.prop.ui.invest.summary.InvestResultSummary
+import com.cjapps.prop.ui.invest.summary.InvestResultSummaryViewModel
 import com.cjapps.prop.ui.summary.InvestmentSummaryScreen
 import com.cjapps.prop.ui.summary.InvestmentSummaryViewModel
 
@@ -55,14 +57,27 @@ fun PropNavGraph(
                 navigateHome = navigationActions.navigateHome
             )
         }
-
         composable(
             route = PropDestinations.INVEST_ROUTE
         ) {
             val viewModel = hiltViewModel<InvestViewModel>()
             InvestScreen(
                 investViewModel = viewModel,
-                navigateHome = navigationActions.navigateHome
+                navigateHome = navigationActions.navigateHome,
+                navigateToInvestResultSummary = navigationActions.navigateToInvestResultSummary
+            )
+        }
+        composable(
+            route = PropDestinations.INVEST_SUMMARY_ROUTE,
+            arguments = listOf(navArgument("amountToInvest") {
+                type = NavType.StringType; defaultValue = "0"
+            })
+
+        ) {
+            val viewModel = hiltViewModel<InvestResultSummaryViewModel>()
+            InvestResultSummary(
+                viewModel = viewModel,
+                navigateBack = navigationActions.navigateBack
             )
         }
     }
