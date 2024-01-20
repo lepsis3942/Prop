@@ -10,6 +10,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.math.BigDecimal
 import javax.inject.Inject
 
 @HiltViewModel
@@ -41,7 +42,9 @@ class InvestViewModel @Inject constructor(
                 investmentAmounts = investmentUiValues
                 uiStateFlow.update {
                     InvestScreenUiState.AdjustingValues(
-                        amountToInvest = amountToInvest, investments = investmentUiValues
+                        amountToInvest = amountToInvest,
+                        investments = investmentUiValues,
+                        investEnabled = isInvestEnabled()
                     )
                 }
             }
@@ -55,7 +58,7 @@ class InvestViewModel @Inject constructor(
                 return@update uiState
             }
             amountToInvest = newAmountToInvest
-            uiState.copy(amountToInvest = newAmountToInvest)
+            uiState.copy(amountToInvest = newAmountToInvest, investEnabled = isInvestEnabled())
         }
     }
 
@@ -88,7 +91,9 @@ class InvestViewModel @Inject constructor(
     fun navigationComplete() {
         uiStateFlow.update {
             InvestScreenUiState.AdjustingValues(
-                amountToInvest = amountToInvest, investments = investmentAmounts
+                amountToInvest = amountToInvest,
+                investments = investmentAmounts,
+                investEnabled = isInvestEnabled()
             )
         }
     }
@@ -112,13 +117,20 @@ class InvestViewModel @Inject constructor(
 
         return updatedDbInvestments
     }
+
+    private fun isInvestEnabled(): Boolean {
+        val amountToInvest = amountToInvest.rawCurrencyInputToBigDecimal()
+        return amountToInvest.compareTo(BigDecimal.ZERO) > 0
+    }
 }
 
 sealed class InvestScreenUiState {
     data object Loading : InvestScreenUiState()
 
     data class AdjustingValues(
-        val amountToInvest: String, val investments: List<InvestmentScreenCurrentInvestmentValue>
+        val amountToInvest: String,
+        val investments: List<InvestmentScreenCurrentInvestmentValue>,
+        val investEnabled: Boolean
     ) : InvestScreenUiState()
 
     data class InvestRequested(val amountToInvest: String) : InvestScreenUiState()

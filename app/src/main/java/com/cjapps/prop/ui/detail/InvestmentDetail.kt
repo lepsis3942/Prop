@@ -14,6 +14,7 @@ import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -40,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.cjapps.prop.R
+import com.cjapps.prop.ui.composables.animatingButtonColors
 import com.cjapps.prop.ui.theme.ExtendedTheme
 import com.cjapps.prop.ui.theme.ThemeDefaults
 
@@ -210,6 +212,10 @@ fun InvestmentDetailScreen(
                     Button(
                         modifier = Modifier.fillMaxWidth(fraction = 0.7f),
                         enabled = uiState.isSaveEnabled,
+                        colors = animatingButtonColors(
+                            buttonColors = ButtonDefaults.buttonColors(),
+                            isButtonEnabled = uiState.isSaveEnabled
+                        ),
                         onClick = {
                             investmentDetailViewModel.saveInvestmentAllocation()
                         }) {

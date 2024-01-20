@@ -15,6 +15,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -35,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.cjapps.prop.R
+import com.cjapps.prop.ui.composables.animatingButtonColors
 import com.cjapps.prop.ui.detail.CurrencyVisualTransformation
 import com.cjapps.prop.ui.theme.ThemeDefaults
 
@@ -77,6 +79,7 @@ fun InvestScreen(
             is InvestScreenUiState.AdjustingValues -> AdjustInvestmentValues(
                 paddingValues = paddingValues,
                 amountToInvest = stateSnapshot.amountToInvest,
+                isInvestEnabled = stateSnapshot.investEnabled,
                 investments = stateSnapshot.investments,
                 updateAmountToInvest = investViewModel::updateAmountToInvest,
                 updateInvestmentCurrentAmount = investViewModel::updateInvestmentCurrentAmount,
@@ -95,6 +98,7 @@ fun InvestScreen(
 private fun AdjustInvestmentValues(
     paddingValues: PaddingValues,
     amountToInvest: String,
+    isInvestEnabled: Boolean,
     investments: List<InvestmentScreenCurrentInvestmentValue>,
     updateAmountToInvest: (String) -> Unit,
     updateInvestmentCurrentAmount: (Int, String) -> Unit,
@@ -163,6 +167,11 @@ private fun AdjustInvestmentValues(
         ) {
             Button(
                 modifier = Modifier.fillMaxWidth(fraction = 0.7f),
+                colors = animatingButtonColors(
+                    buttonColors = ButtonDefaults.buttonColors(),
+                    isButtonEnabled = isInvestEnabled
+                ),
+                enabled = isInvestEnabled,
                 onClick = {
                     investTapped()
                 }) {
