@@ -7,6 +7,8 @@ import com.cjapps.prop.models.InvestmentAllocation
 import com.cjapps.prop.ui.extensions.bigDecimalToRawCurrency
 import com.cjapps.prop.ui.extensions.rawCurrencyInputToBigDecimal
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -43,7 +45,7 @@ class InvestViewModel @Inject constructor(
                 uiStateFlow.update {
                     InvestScreenUiState.AdjustingValues(
                         amountToInvest = amountToInvest,
-                        investments = investmentUiValues,
+                        investments = investmentUiValues.toImmutableList(),
                         investEnabled = isInvestEnabled()
                     )
                 }
@@ -78,7 +80,7 @@ class InvestViewModel @Inject constructor(
                 } else it
             }
             investmentAmounts = updatedInvestments
-            uiState.copy(investments = updatedInvestments)
+            uiState.copy(investments = updatedInvestments.toImmutableList())
         }
     }
 
@@ -92,7 +94,7 @@ class InvestViewModel @Inject constructor(
         uiStateFlow.update {
             InvestScreenUiState.AdjustingValues(
                 amountToInvest = amountToInvest,
-                investments = investmentAmounts,
+                investments = investmentAmounts.toImmutableList(),
                 investEnabled = isInvestEnabled()
             )
         }
@@ -129,7 +131,7 @@ sealed class InvestScreenUiState {
 
     data class AdjustingValues(
         val amountToInvest: String,
-        val investments: List<InvestmentScreenCurrentInvestmentValue>,
+        val investments: ImmutableList<InvestmentScreenCurrentInvestmentValue>,
         val investEnabled: Boolean
     ) : InvestScreenUiState()
 

@@ -47,6 +47,7 @@ import com.cjapps.prop.ui.extensions.asDisplayPercentage
 import com.cjapps.prop.ui.extensions.isNumericalValueEqualTo
 import com.cjapps.prop.ui.theme.ExtendedTheme
 import com.cjapps.prop.ui.theme.ThemeDefaults
+import kotlinx.collections.immutable.ImmutableList
 import java.math.BigDecimal
 
 @Composable
@@ -194,7 +195,7 @@ fun HeaderCard(
 @Composable
 fun InvestmentAllocations(
     modifier: Modifier = Modifier,
-    investmentAllocations: List<InvestmentAllocation>,
+    investmentAllocations: ImmutableList<InvestmentAllocation>,
     accountTotal: BigDecimal,
     onInvestmentTapped: (Int) -> Unit
 ) {

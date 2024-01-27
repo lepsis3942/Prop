@@ -39,6 +39,7 @@ import com.cjapps.prop.R
 import com.cjapps.prop.ui.composables.animatingButtonColors
 import com.cjapps.prop.ui.detail.CurrencyVisualTransformation
 import com.cjapps.prop.ui.theme.ThemeDefaults
+import kotlinx.collections.immutable.ImmutableList
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -99,7 +100,7 @@ private fun AdjustInvestmentValues(
     paddingValues: PaddingValues,
     amountToInvest: String,
     isInvestEnabled: Boolean,
-    investments: List<InvestmentScreenCurrentInvestmentValue>,
+    investments: ImmutableList<InvestmentScreenCurrentInvestmentValue>,
     updateAmountToInvest: (String) -> Unit,
     updateInvestmentCurrentAmount: (Int, String) -> Unit,
     investTapped: () -> Unit

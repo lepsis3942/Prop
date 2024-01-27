@@ -8,6 +8,8 @@ import com.cjapps.prop.data.calculation.InvestmentCalculationStrategyFactory
 import com.cjapps.prop.ui.extensions.bigDecimalToUiFormattedCurrency
 import com.cjapps.prop.ui.extensions.rawCurrencyInputToBigDecimal
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -49,7 +51,7 @@ class InvestResultSummaryViewModel @Inject constructor(
                             investmentName = investment.tickerName,
                             amountToInvest = entry.value.bigDecimalToUiFormattedCurrency()
                         )
-                    }
+                    }.toImmutableList()
                 )
             }
         }
@@ -61,7 +63,7 @@ sealed class InvestResultScreenUiState {
 
     data class CalculationComplete(
         val amountToInvest: String,
-        val investments: List<InvestmentScreenUpdatedInvestmentValue>,
+        val investments: ImmutableList<InvestmentScreenUpdatedInvestmentValue>,
     ) : InvestResultScreenUiState()
 }
 
