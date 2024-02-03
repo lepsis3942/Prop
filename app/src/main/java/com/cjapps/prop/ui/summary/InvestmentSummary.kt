@@ -86,6 +86,7 @@ fun InvestmentSummaryScreen(
                     accountTotal = uiState.totalForAllInvestments,
                     onAddInvestmentTap = { navigateToInvestmentCreate() },
                     investButtonEnabled = uiState.isInvestButtonEnabled,
+                    addStockButtonEnabled = uiState.isAddStockButtonEnabled,
                     onInvestTap = { navigateToInvestScreen() },
                 )
                 PercentageProgressIndicator(
@@ -136,6 +137,7 @@ fun AppTitleHeader(
 fun HeaderCard(
     modifier: Modifier = Modifier,
     accountTotal: BigDecimal,
+    addStockButtonEnabled: Boolean,
     investButtonEnabled: Boolean,
     onAddInvestmentTap: () -> Unit,
     onInvestTap: () -> Unit
@@ -169,7 +171,9 @@ fun HeaderCard(
                 OutlinedButton(
                     modifier = Modifier
                         .weight(1f)
-                        .padding(end = 8.dp), onClick = onAddInvestmentTap
+                        .padding(end = 8.dp),
+                    enabled = addStockButtonEnabled,
+                    onClick = onAddInvestmentTap,
                 ) {
                     Text(text = "Add Stock", style = MaterialTheme.typography.titleMedium)
                 }

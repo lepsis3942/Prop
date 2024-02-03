@@ -23,6 +23,7 @@ class InvestmentSummaryViewModel @Inject constructor(
         HomeScreenUiState(
             isLoading = true,
             isInvestButtonEnabled = false,
+            isAddStockButtonEnabled = false,
             investmentAllocations = persistentListOf(),
             totalForAllInvestments = BigDecimal.ZERO,
             totalAllocatedPercent = 0
@@ -42,16 +43,18 @@ class InvestmentSummaryViewModel @Inject constructor(
                     investments.fold(BigDecimal.ZERO) { total, item ->
                         total + item.desiredPercentage
                     }
+                val currentAllocatedPercentage = calculatePercentageTotal(investments)
                 uiStateFlow.update { uiState ->
                     uiState.copy(
                         isLoading = false,
                         isInvestButtonEnabled = desiredAllocationPercentageSum.isNumericalValueEqualTo(
                             BigDecimal(100)
                         ),
+                        isAddStockButtonEnabled = currentAllocatedPercentage < 100,
                         investmentAllocations = investments.sortedByDescending { it.desiredPercentage }
                             .toImmutableList(),
                         totalForAllInvestments = calculateInvestmentTotal(investments),
-                        totalAllocatedPercent = calculatePercentageTotal(investments)
+                        totalAllocatedPercent = currentAllocatedPercentage
                     )
                 }
             }
@@ -68,6 +71,7 @@ class InvestmentSummaryViewModel @Inject constructor(
 data class HomeScreenUiState(
     val isLoading: Boolean,
     val isInvestButtonEnabled: Boolean,
+    val isAddStockButtonEnabled: Boolean,
     val investmentAllocations: ImmutableList<InvestmentAllocation>,
     val totalForAllInvestments: BigDecimal,
     val totalAllocatedPercent: Int
