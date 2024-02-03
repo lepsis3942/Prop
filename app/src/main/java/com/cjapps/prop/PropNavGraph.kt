@@ -77,7 +77,8 @@ fun PropNavGraph(
             val viewModel = hiltViewModel<InvestResultSummaryViewModel>()
             InvestResultSummary(
                 viewModel = viewModel,
-                navigateBack = navigationActions.navigateBack
+                navigateBack = navigationActions.navigateBack,
+                navigateHome = navigationActions.navigateHome
             )
         }
     }

@@ -3,7 +3,6 @@ package com.cjapps.prop.ui.invest
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cjapps.prop.data.IInvestmentRepository
-import com.cjapps.prop.models.InvestmentAllocation
 import com.cjapps.prop.ui.extensions.bigDecimalToRawCurrency
 import com.cjapps.prop.ui.extensions.rawCurrencyInputToBigDecimal
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -98,26 +97,6 @@ class InvestViewModel @Inject constructor(
                 investEnabled = isInvestEnabled()
             )
         }
-    }
-
-    private suspend fun updateInvestmentValues(investmentUiValues: List<InvestmentScreenCurrentInvestmentValue>): List<InvestmentAllocation> {
-        // This can be more efficient. Can store updated values in hashmap and only update changed values
-        // List is likely to be quite short and performance not as large a concern for the moment
-        val dbInvestments = investmentRepository.getInvestments()
-        val updatedDbInvestments = dbInvestments.map { dbInvestment ->
-            val updatedValue =
-                investmentUiValues.firstOrNull { uiValue -> uiValue.id == dbInvestment.id }
-            if (updatedValue != null) {
-                return@map dbInvestment.copy(currentInvestedAmount = updatedValue.investmentValue.rawCurrencyInputToBigDecimal())
-            } else {
-                return@map dbInvestment
-            }
-        }
-        updatedDbInvestments.forEach {
-            investmentRepository.updateInvestment(it)
-        }
-
-        return updatedDbInvestments
     }
 
     private fun isInvestEnabled(): Boolean {

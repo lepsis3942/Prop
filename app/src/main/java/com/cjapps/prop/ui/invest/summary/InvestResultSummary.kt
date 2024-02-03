@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -32,15 +33,16 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cjapps.prop.R
 import com.cjapps.prop.ui.theme.ExtendedTheme
 import com.cjapps.prop.ui.theme.ThemeDefaults
+import kotlinx.collections.immutable.ImmutableList
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InvestResultSummary(
     modifier: Modifier = Modifier,
     viewModel: InvestResultSummaryViewModel,
-    navigateBack: () -> Unit
+    navigateBack: () -> Unit,
+    navigateHome: () -> Unit
 ) {
-
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
@@ -72,22 +74,24 @@ fun InvestResultSummary(
 
             is InvestResultScreenUiState.CalculationComplete -> {
                 InvestmentCalculationComplete(
-                    modifier = modifier,
                     paddingValues = paddingValues,
                     amountToInvest = stateSnapshot.amountToInvest,
-                    investments = stateSnapshot.investments
+                    investments = stateSnapshot.investments,
+                    onInvestTapped = viewModel::onInvestTapped
                 )
             }
+
+            InvestResultScreenUiState.InvestmentsSaved -> navigateHome()
         }
     }
 }
 
 @Composable
 fun InvestmentCalculationComplete(
-    modifier: Modifier = Modifier,
     paddingValues: PaddingValues,
     amountToInvest: String,
-    investments: List<InvestmentScreenUpdatedInvestmentValue>
+    investments: ImmutableList<InvestmentScreenUpdatedInvestmentValue>,
+    onInvestTapped: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -121,32 +125,56 @@ fun InvestmentCalculationComplete(
         ) {
             LazyColumn(verticalArrangement = Arrangement.spacedBy(15.dp)) {
                 items(items = investments) { investment ->
-                    Row(
+                    InvestmentItem(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = ThemeDefaults.pagePadding),
-                    ) {
-                        Text(
-                            modifier = Modifier.weight(weight = 2.0f),
-                            text = investment.investmentName,
-                            style = MaterialTheme.typography.titleMedium,
-                            textAlign = TextAlign.Center
-                        )
-                        Icon(
-                            modifier = Modifier.weight(weight = 1.0f),
-                            imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
-                            contentDescription = stringResource(id = R.string.invest_calculation_arrow_content_description)
-                        )
-                        Text(
-                            modifier = Modifier.weight(weight = 2.0f),
-                            text = investment.amountToInvest,
-                            color = ExtendedTheme.colors.currencyGreen,
-                            style = MaterialTheme.typography.titleMedium,
-                            textAlign = TextAlign.Center
-                        )
-                    }
+                        investment = investment
+                    )
                 }
             }
         }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 32.dp, bottom = ThemeDefaults.pagePadding),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Button(
+                modifier = Modifier.fillMaxWidth(fraction = 0.7f),
+                onClick = onInvestTapped
+            ) {
+                Text(text = stringResource(id = R.string.investment_detail_save_button))
+            }
+        }
+    }
+}
+
+@Composable
+fun InvestmentItem(
+    modifier: Modifier = Modifier,
+    investment: InvestmentScreenUpdatedInvestmentValue
+) {
+    Row(
+        modifier = modifier,
+    ) {
+        Text(
+            modifier = Modifier.weight(weight = 2.0f),
+            text = investment.investmentName,
+            style = MaterialTheme.typography.titleMedium,
+            textAlign = TextAlign.Center
+        )
+        Icon(
+            modifier = Modifier.weight(weight = 1.0f),
+            imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
+            contentDescription = stringResource(id = R.string.invest_calculation_arrow_content_description)
+        )
+        Text(
+            modifier = Modifier.weight(weight = 2.0f),
+            text = investment.amountToInvest,
+            color = ExtendedTheme.colors.currencyGreen,
+            style = MaterialTheme.typography.titleMedium,
+            textAlign = TextAlign.Center
+        )
     }
 }

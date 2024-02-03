@@ -8,6 +8,7 @@
     <string name="invest_calculation_arrow_content_description">Arrow</string>
     <string name="invest_page_title">Invest</string>
     <string name="invest_invest_button">Invest</string>
+    <string name="invest_result_button_title">Update Amounts</string>
     <string name="invest_result_page_title">Invest</string>
     <string name="investment_detail_delete_button_content_desc">Error</string>
     <string name="investment_detail_error_dialog_title">Error</string>
