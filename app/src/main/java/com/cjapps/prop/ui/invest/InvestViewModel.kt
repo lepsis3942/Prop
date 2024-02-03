@@ -33,13 +33,15 @@ class InvestViewModel @Inject constructor(
     private fun loadData() {
         viewModelScope.launch {
             investmentRepository.getInvestmentsAsFlow().collect {
-                val investmentUiValues = it.map { investment ->
-                    InvestmentScreenCurrentInvestmentValue(
-                        id = investment.id ?: -1,
-                        investmentName = investment.tickerName,
-                        investmentValue = investment.currentInvestedAmount.bigDecimalToRawCurrency()
-                    )
-                }
+                val investmentUiValues =
+                    it.sortedByDescending { investment -> investment.currentInvestedAmount }
+                        .map { investment ->
+                            InvestmentScreenCurrentInvestmentValue(
+                                id = investment.id ?: -1,
+                                investmentName = investment.tickerName,
+                                investmentValue = investment.currentInvestedAmount.bigDecimalToRawCurrency()
+                            )
+                        }
                 investmentAmounts = investmentUiValues
                 uiStateFlow.update {
                     InvestScreenUiState.AdjustingValues(
