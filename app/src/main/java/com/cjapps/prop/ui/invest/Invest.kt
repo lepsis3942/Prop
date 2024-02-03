@@ -151,7 +151,7 @@ private fun AdjustInvestmentValues(
                             .fillMaxWidth(),
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Number,
-                            imeAction = ImeAction.Done
+                            imeAction = ImeAction.Next
                         ),
                         label = { Text(text = investment.investmentName) },
                         value = investment.investmentValue,
