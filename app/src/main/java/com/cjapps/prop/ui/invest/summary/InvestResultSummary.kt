@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
@@ -31,6 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cjapps.prop.R
+import com.cjapps.prop.ui.extensions.fadingEdge
 import com.cjapps.prop.ui.theme.ExtendedTheme
 import com.cjapps.prop.ui.theme.ThemeDefaults
 import kotlinx.collections.immutable.ImmutableList
@@ -38,7 +40,6 @@ import kotlinx.collections.immutable.ImmutableList
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InvestResultSummary(
-    modifier: Modifier = Modifier,
     viewModel: InvestResultSummaryViewModel,
     navigateBack: () -> Unit,
     navigateHome: () -> Unit
@@ -123,7 +124,11 @@ fun InvestmentCalculationComplete(
                 .fillMaxWidth()
                 .weight(weight = 1.0f),
         ) {
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(15.dp)) {
+            val scrollState = rememberLazyListState()
+            LazyColumn(
+                modifier = Modifier.fadingEdge(scrollState),
+                verticalArrangement = Arrangement.spacedBy(15.dp)
+            ) {
                 items(items = investments) { investment ->
                     InvestmentItem(
                         modifier = Modifier

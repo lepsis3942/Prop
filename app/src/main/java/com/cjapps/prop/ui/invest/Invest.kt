@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -38,6 +39,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.cjapps.prop.R
 import com.cjapps.prop.ui.composables.animatingButtonColors
 import com.cjapps.prop.ui.detail.CurrencyVisualTransformation
+import com.cjapps.prop.ui.extensions.fadingEdge
 import com.cjapps.prop.ui.theme.ThemeDefaults
 import kotlinx.collections.immutable.ImmutableList
 
@@ -137,7 +139,12 @@ private fun AdjustInvestmentValues(
                 .fillMaxWidth()
                 .weight(weight = 1.0f),
         ) {
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(15.dp)) {
+            val scrollState = rememberLazyListState()
+            LazyColumn(
+                modifier = Modifier.fadingEdge(scrollState),
+                verticalArrangement = Arrangement.spacedBy(15.dp),
+                state = scrollState
+            ) {
                 items(items = investments) { investment ->
                     OutlinedTextField(
                         modifier = Modifier

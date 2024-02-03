@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.ArrowDropDown
@@ -44,6 +45,7 @@ import com.cjapps.prop.R
 import com.cjapps.prop.models.InvestmentAllocation
 import com.cjapps.prop.ui.extensions.asDisplayCurrency
 import com.cjapps.prop.ui.extensions.asDisplayPercentage
+import com.cjapps.prop.ui.extensions.fadingEdge
 import com.cjapps.prop.ui.extensions.isNumericalValueEqualTo
 import com.cjapps.prop.ui.theme.ExtendedTheme
 import com.cjapps.prop.ui.theme.ThemeDefaults
@@ -203,8 +205,10 @@ fun InvestmentAllocations(
     accountTotal: BigDecimal,
     onInvestmentTapped: (Int) -> Unit
 ) {
+    val scrollState = rememberLazyGridState()
     LazyVerticalGrid(
-        modifier = modifier,
+        modifier = modifier.fadingEdge(scrollState),
+        state = scrollState,
         columns = GridCells.Fixed(2),
         contentPadding = PaddingValues(top = 0.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
