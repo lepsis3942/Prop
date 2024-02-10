@@ -1,12 +1,23 @@
 package com.cjapps.prop.ui.invest
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -30,6 +41,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -107,17 +119,18 @@ private fun AdjustInvestmentValues(
     updateInvestmentCurrentAmount: (Int, String) -> Unit,
     investTapped: () -> Unit
 ) {
+    val keyboardHeightPx = WindowInsets.ime.getBottom(LocalDensity.current)
+    val keyboardHeight = with(LocalDensity.current) { keyboardHeightPx.toDp() }
     Column(
         modifier = Modifier
             .padding(paddingValues)
-            .imePadding()
             .padding(horizontal = ThemeDefaults.pagePadding)
             .fillMaxSize()
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 32.dp, bottom = 32.dp)
+                .padding(top = 32.dp, bottom = 40.dp)
         ) {
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
@@ -167,24 +180,34 @@ private fun AdjustInvestmentValues(
                 }
             }
         }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 32.dp, bottom = ThemeDefaults.pagePadding),
-            horizontalArrangement = Arrangement.Center
+        AnimatedVisibility(visible = keyboardHeight < 50.dp,
+            enter = slideInVertically {
+                it
+            } + expandVertically(expandFrom = Alignment.Bottom) + fadeIn(),
+            exit = slideOutVertically(animationSpec = tween(durationMillis = 50)) {
+                keyboardHeightPx
+            } + shrinkVertically(shrinkTowards = Alignment.Bottom) + fadeOut()
         ) {
-            Button(
-                modifier = Modifier.fillMaxWidth(fraction = 0.7f),
-                colors = animatingButtonColors(
-                    buttonColors = ButtonDefaults.buttonColors(),
-                    isButtonEnabled = isInvestEnabled
-                ),
-                enabled = isInvestEnabled,
-                onClick = {
-                    investTapped()
-                }) {
-                Text(text = stringResource(id = R.string.invest_invest_button))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 32.dp, bottom = ThemeDefaults.pagePadding),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Button(
+                    modifier = Modifier.fillMaxWidth(fraction = 0.7f),
+                    colors = animatingButtonColors(
+                        buttonColors = ButtonDefaults.buttonColors(),
+                        isButtonEnabled = isInvestEnabled
+                    ),
+                    enabled = isInvestEnabled,
+                    onClick = {
+                        investTapped()
+                    }) {
+                    Text(text = stringResource(id = R.string.invest_invest_button))
+                }
             }
         }
+        Spacer(modifier = Modifier.height(keyboardHeight))
     }
 }
