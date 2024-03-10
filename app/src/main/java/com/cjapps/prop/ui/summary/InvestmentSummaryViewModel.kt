@@ -2,7 +2,9 @@ package com.cjapps.prop.ui.summary
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cjapps.prop.BuildConfig
 import com.cjapps.prop.data.IInvestmentRepository
+import com.cjapps.prop.data.IPropRepository
 import com.cjapps.prop.models.InvestmentAllocation
 import com.cjapps.prop.ui.extensions.isNumericalValueEqualTo
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,12 +20,14 @@ import javax.inject.Inject
 @HiltViewModel
 class InvestmentSummaryViewModel @Inject constructor(
     private val investmentRepository: IInvestmentRepository,
+    private val propRepository: IPropRepository,
 ) : ViewModel() {
     private val uiStateFlow = MutableStateFlow(
         HomeScreenUiState(
             isLoading = true,
             isInvestButtonEnabled = false,
             isAddStockButtonEnabled = false,
+            appMeetsBuildRequirements = true,
             investmentAllocations = persistentListOf(),
             totalForAllInvestments = BigDecimal.ZERO,
             totalAllocatedPercent = 0
@@ -38,6 +42,8 @@ class InvestmentSummaryViewModel @Inject constructor(
 
     private fun retrieveInvestments() {
         viewModelScope.launch {
+            val appData = propRepository.getAppData()
+            val appMeetsBuildRequirements = appData.minimumBuildNumber <= BuildConfig.VERSION_CODE
             investmentRepository.getInvestmentsAsFlow().collect { investments ->
                 val desiredAllocationPercentageSum =
                     investments.fold(BigDecimal.ZERO) { total, item ->
@@ -50,6 +56,7 @@ class InvestmentSummaryViewModel @Inject constructor(
                         isInvestButtonEnabled = desiredAllocationPercentageSum.isNumericalValueEqualTo(
                             BigDecimal(100)
                         ),
+                        appMeetsBuildRequirements = appMeetsBuildRequirements,
                         isAddStockButtonEnabled = currentAllocatedPercentage < 100,
                         investmentAllocations = investments.sortedByDescending { it.desiredPercentage }
                             .toImmutableList(),
@@ -72,6 +79,7 @@ data class HomeScreenUiState(
     val isLoading: Boolean,
     val isInvestButtonEnabled: Boolean,
     val isAddStockButtonEnabled: Boolean,
+    val appMeetsBuildRequirements: Boolean = true,
     val investmentAllocations: ImmutableList<InvestmentAllocation>,
     val totalForAllInvestments: BigDecimal,
     val totalAllocatedPercent: Int

@@ -5,11 +5,14 @@ import androidx.room.Room
 import com.cjapps.prop.DispatcherProvider
 import com.cjapps.prop.IDispatcherProvider
 import com.cjapps.prop.data.IInvestmentRepository
+import com.cjapps.prop.data.IPropRepository
 import com.cjapps.prop.data.InvestmentRepository
+import com.cjapps.prop.data.PropRepository
 import com.cjapps.prop.data.database.AppDatabase
 import com.cjapps.prop.data.database.InvestmentAllocationDao
 import com.cjapps.prop.data.mappers.DaoMapper
 import com.cjapps.prop.data.mappers.IDaoMapper
+import com.cjapps.prop.data.network.IPropAPIService
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -17,6 +20,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
 
@@ -36,6 +41,11 @@ abstract class RepositoryModule {
     abstract fun bindInvestmentRepository(
         investmentRepository: InvestmentRepository
     ): IInvestmentRepository
+
+    @Binds
+    abstract fun bindPropRepository(
+        propRepository: PropRepository
+    ): IPropRepository
 
     @Binds
     abstract fun bindDaoMapper(daoMapper: DaoMapper): IDaoMapper
@@ -58,4 +68,20 @@ object DatabaseModule {
     fun provideInvestmentAllocationDao(appDatabase: AppDatabase): InvestmentAllocationDao {
         return appDatabase.investmentAllocationDao()
     }
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+object RetrofitModule {
+    @Provides
+    @Singleton
+    fun provideRetrofit(): Retrofit = Retrofit.Builder()
+        .baseUrl("https://prop-644bb.firebaseapp.com/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+
+    @Provides
+    @Singleton
+    fun providesPropApi(retrofit: Retrofit): IPropAPIService =
+        retrofit.create(IPropAPIService::class.java)
 }

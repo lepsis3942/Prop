@@ -1,5 +1,6 @@
 package com.cjapps.prop.ui.summary
 
+import android.app.Activity
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -28,6 +30,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -35,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
@@ -61,6 +65,13 @@ fun InvestmentSummaryScreen(
     navigateToInvestScreen: () -> Unit
 ) {
     val uiState by investmentSummaryViewModel.uiState.collectAsStateWithLifecycle()
+
+    val localContext = LocalContext.current
+    if (!uiState.appMeetsBuildRequirements) {
+        AppDoesNotMeetMinimumRequirementsDialog(onConfirmation = {
+            (localContext as? Activity)?.finish()
+        })
+    }
 
     // A surface container using the 'background' color from the theme
     Surface(
@@ -332,4 +343,30 @@ fun PercentageWithArrow(
             )
         }
     }
+}
+
+@Composable
+fun AppDoesNotMeetMinimumRequirementsDialog(
+    onConfirmation: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = { onConfirmation() },
+        confirmButton = {
+            TextButton(
+                onClick = { onConfirmation() }
+            ) {
+                Text(stringResource(id = R.string.ok))
+            }
+        },
+        title = {
+            Text(
+                text = stringResource(id = R.string.minimum_build_version_dialog_title)
+            )
+        },
+        text = {
+            Text(
+                text = stringResource(id = R.string.minimum_build_version_dialog_body)
+            )
+        }
+    )
 }
