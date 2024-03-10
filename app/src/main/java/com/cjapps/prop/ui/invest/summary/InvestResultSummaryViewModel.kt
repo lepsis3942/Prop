@@ -45,14 +45,14 @@ class InvestResultSummaryViewModel @Inject constructor(
             uiStateFlow.update {
                 InvestResultScreenUiState.CalculationComplete(
                     amountToInvest = amountToInvest.bigDecimalToUiFormattedCurrency(),
-                    investments = calculatedInvestments.map { entry ->
-                        val investment = entry.key
-                        InvestmentScreenUpdatedInvestmentValue(
-                            id = investment.id ?: -1,
-                            investmentName = investment.tickerName,
-                            amountToInvest = entry.value.bigDecimalToUiFormattedCurrency()
-                        )
-                    }.toImmutableList()
+                    investments = calculatedInvestments.toList().sortedByDescending { it.second }
+                        .map {
+                            InvestmentScreenUpdatedInvestmentValue(
+                                id = it.first.id ?: -1,
+                                investmentName = it.first.tickerName,
+                                amountToInvest = it.second.bigDecimalToUiFormattedCurrency()
+                            )
+                        }.toImmutableList()
                 )
             }
         }

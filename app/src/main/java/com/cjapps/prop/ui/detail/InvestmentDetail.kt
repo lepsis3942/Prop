@@ -99,14 +99,15 @@ fun InvestmentDetailScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { investmentDetailViewModel.deleteInvestment() }) {
-                        Icon(
-                            imageVector = Icons.Rounded.Delete,
-                            contentDescription = stringResource(
-                                id = R.string.investment_detail_delete_button_content_desc
-                            ),
-                        )
-                    }
+                    if (uiState.isUpdateMode)
+                        IconButton(onClick = { investmentDetailViewModel.deleteInvestment() }) {
+                            Icon(
+                                imageVector = Icons.Rounded.Delete,
+                                contentDescription = stringResource(
+                                    id = R.string.investment_detail_delete_button_content_desc
+                                ),
+                            )
+                        }
                 }
             )
         }
