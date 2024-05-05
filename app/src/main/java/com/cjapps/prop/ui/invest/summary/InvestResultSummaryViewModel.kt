@@ -56,7 +56,8 @@ class InvestResultSummaryViewModel @Inject constructor(
                                 amountToInvest = it.second,
                                 tickerPricesResult = tickerMarketPricesResult
                             )
-                        }.toImmutableList()
+                        }.toImmutableList(),
+                    tickerPriceErrorEncountered = tickerMarketPricesResult.isFailure
                 )
             }
         }
@@ -141,6 +142,7 @@ sealed class InvestResultScreenUiState {
     data class CalculationComplete(
         val amountToInvest: String,
         val investments: ImmutableList<InvestmentScreenUpdatedInvestmentValue>,
+        val tickerPriceErrorEncountered: Boolean = false
     ) : InvestResultScreenUiState()
 
     data object InvestmentsSaved : InvestResultScreenUiState()
