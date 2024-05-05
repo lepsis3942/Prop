@@ -18,13 +18,14 @@ fun ListCard(
         alpha = 0.4f
     )
 ) {
-    onTap?.let {
-        modifier.pointerInput(Unit) {
-            detectTapGestures { onTap() }
-        }
-    } ?: modifier
     Card(
-        modifier = modifier, colors = CardDefaults.cardColors(
+        modifier = modifier.pointerInput(Unit) {
+            if (onTap != null) {
+                detectTapGestures {
+                    onTap()
+                }
+            }
+        }, colors = CardDefaults.cardColors(
             containerColor = backgroundColor
         )
     ) {
