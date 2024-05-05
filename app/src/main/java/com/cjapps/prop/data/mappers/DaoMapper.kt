@@ -35,7 +35,7 @@ class DaoMapper @Inject constructor() : IDaoMapper {
 
         return EntityInvestmentAllocation(
             id = investmentAllocation.id ?: 0,
-            tickerName = investmentAllocation.tickerName,
+            tickerName = investmentAllocation.tickerName.uppercase(),
             currentInvestedAmount = monetaryNumberFormatter.format(investmentAllocation.currentInvestedAmount),
             desiredPercentage = "$trimmedPercentageStart.${splitPercentage[1]}"
         )
@@ -44,7 +44,7 @@ class DaoMapper @Inject constructor() : IDaoMapper {
     override fun entityToInvestmentAllocation(investmentAllocationEntity: EntityInvestmentAllocation): InvestmentAllocation {
         return InvestmentAllocation(
             id = investmentAllocationEntity.id,
-            tickerName = investmentAllocationEntity.tickerName,
+            tickerName = investmentAllocationEntity.tickerName.uppercase(),
             currentInvestedAmount = BigDecimal(investmentAllocationEntity.currentInvestedAmount),
             desiredPercentage = BigDecimal(investmentAllocationEntity.desiredPercentage)
         )

@@ -86,6 +86,13 @@ class DefaultInvestmentCalculationStrategy : IInvestmentCalculationStrategy {
         return investmentsToMake
     }
 
+    override fun calculateSharesToBuy(investmentAmt: BigDecimal, marketPrice: BigDecimal): Int {
+        if (investmentAmt <= BigDecimal.ZERO || marketPrice <= BigDecimal.ZERO) {
+            return 0
+        }
+        return investmentAmt.divide(marketPrice, RoundingMode.DOWN).toInt()
+    }
+
     private fun idealAmountAfterInvestment(
         investment: InvestmentAllocation,
         totalCurrentlyInvested: BigDecimal,

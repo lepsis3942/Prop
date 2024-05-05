@@ -283,6 +283,94 @@ class DefaultInvestmentCalculationStrategyTest {
         assertEquals(investments[1], calculatedInvestments.keys.last()) // B
     }
 
+    @Test
+    fun testSharesToBuyReturns0WhenMarketPriceIs0() {
+        assertEquals(
+            0,
+            strategy.calculateSharesToBuy(
+                investmentAmt = BigDecimal("100.00"),
+                marketPrice = BigDecimal.ZERO
+            )
+        )
+    }
+
+    @Test
+    fun testSharesToBuyReturns0WhenInvestmentAmtIs0() {
+        assertEquals(
+            0,
+            strategy.calculateSharesToBuy(
+                investmentAmt = BigDecimal.ZERO,
+                marketPrice = BigDecimal("23.81")
+            )
+        )
+    }
+
+    @Test
+    fun testSharesToBuyReturns0WhenMarketPriceIsNegative() {
+        assertEquals(
+            0,
+            strategy.calculateSharesToBuy(
+                investmentAmt = BigDecimal("100.00"),
+                marketPrice = BigDecimal("-4.99")
+            )
+        )
+    }
+
+    @Test
+    fun testSharesToBuyReturns0WhenInvestmentAmtIsNegative() {
+        assertEquals(
+            0,
+            strategy.calculateSharesToBuy(
+                investmentAmt = BigDecimal("-40.99"),
+                marketPrice = BigDecimal("23.81")
+            )
+        )
+    }
+
+    @Test
+    fun testSharesToBuyRoundsDownIfNeeded() {
+        assertEquals(
+            10,
+            strategy.calculateSharesToBuy(
+                investmentAmt = BigDecimal("105.00"),
+                marketPrice = BigDecimal("10.00")
+            )
+        )
+        assertEquals(
+            8,
+            strategy.calculateSharesToBuy(
+                investmentAmt = BigDecimal("89.9999"),
+                marketPrice = BigDecimal("10.00")
+            )
+        )
+        assertEquals(
+            9,
+            strategy.calculateSharesToBuy(
+                investmentAmt = BigDecimal("89.9999"),
+                marketPrice = BigDecimal("9.99")
+            ) // 9.008998998999
+        )
+    }
+
+    @Test
+    fun testSharesToBuyGivesExactValueIfNoRounding() {
+        assertEquals(
+            100,
+            strategy.calculateSharesToBuy(
+                investmentAmt = BigDecimal("2000.00"),
+                marketPrice = BigDecimal("20.00")
+            )
+        )
+
+        assertEquals(
+            7,
+            strategy.calculateSharesToBuy(
+                investmentAmt = BigDecimal("348.46"),
+                marketPrice = BigDecimal("49.78")
+            )
+        )
+    }
+
     private fun getMapSum(map: Map<InvestmentAllocation, BigDecimal>): BigDecimal {
         return map.values.fold(BigDecimal.ZERO) { total, item ->
             total + item

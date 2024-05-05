@@ -32,6 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cjapps.prop.R
+import com.cjapps.prop.ui.composables.ListCard
 import com.cjapps.prop.ui.extensions.fadingEdge
 import com.cjapps.prop.ui.theme.ExtendedTheme
 import com.cjapps.prop.ui.theme.ThemeDefaults
@@ -127,13 +128,13 @@ fun InvestmentCalculationComplete(
             val scrollState = rememberLazyListState()
             LazyColumn(
                 modifier = Modifier.fadingEdge(scrollState),
+                state = scrollState,
                 verticalArrangement = Arrangement.spacedBy(15.dp)
             ) {
                 items(items = investments) { investment ->
                     InvestmentItem(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = ThemeDefaults.pagePadding),
+                            .fillMaxWidth(),
                         investment = investment
                     )
                 }
@@ -160,26 +161,81 @@ fun InvestmentItem(
     modifier: Modifier = Modifier,
     investment: InvestmentScreenUpdatedInvestmentValue
 ) {
-    Row(
-        modifier = modifier,
-    ) {
-        Text(
-            modifier = Modifier.weight(weight = 2.0f),
-            text = investment.investmentName,
-            style = MaterialTheme.typography.titleMedium,
-            textAlign = TextAlign.Center
-        )
-        Icon(
-            modifier = Modifier.weight(weight = 1.0f),
-            imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
-            contentDescription = stringResource(id = R.string.invest_calculation_arrow_content_description)
-        )
-        Text(
-            modifier = Modifier.weight(weight = 2.0f),
-            text = investment.amountToInvest,
-            color = ExtendedTheme.colors.currencyGreen,
-            style = MaterialTheme.typography.titleMedium,
-            textAlign = TextAlign.Center
-        )
-    }
+    ListCard(modifier = modifier, content = {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(ThemeDefaults.pagePadding),
+        ) {
+            Text(
+                modifier = Modifier.weight(weight = 2.0f),
+                text = investment.investmentName,
+                style = MaterialTheme.typography.titleMedium,
+                textAlign = TextAlign.Center
+            )
+            Icon(
+                modifier = Modifier.weight(weight = 1.0f),
+                imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
+                contentDescription = stringResource(id = R.string.invest_calculation_arrow_content_description)
+            )
+            Text(
+                modifier = Modifier.weight(weight = 2.0f),
+                text = investment.amountToInvest,
+                color = ExtendedTheme.colors.currencyGreen,
+                style = MaterialTheme.typography.titleMedium,
+                textAlign = TextAlign.Center
+            )
+        }
+        if (investment.shareInfo != null && investment.shareInfo.sharesToBuy > 0) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        start = ThemeDefaults.pagePadding,
+                        end = ThemeDefaults.pagePadding,
+                        bottom = ThemeDefaults.pagePadding
+                    ),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.weight(weight = 2.0f)
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.investment_detail_at),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    Column(
+                        modifier = Modifier.padding(start = 4.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.investment_detail_share_info_market_price),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        Text(
+                            text = investment.shareInfo.marketPrice,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
+                Text(
+                    modifier = Modifier.weight(weight = 1.0f),
+                    text = stringResource(id = R.string.investment_detail_share_info_buy),
+                    style = MaterialTheme.typography.bodySmall,
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    modifier = Modifier.weight(weight = 2.0f),
+                    text = stringResource(
+                        id = R.string.investment_detail_share_info_shares,
+                        investment.shareInfo.sharesToBuy
+                    ),
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+    })
 }

@@ -1,7 +1,6 @@
 package com.cjapps.prop.ui.summary
 
 import android.app.Activity
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -37,7 +36,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -47,6 +45,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.cjapps.prop.R
 import com.cjapps.prop.models.InvestmentAllocation
+import com.cjapps.prop.ui.composables.ListCard
 import com.cjapps.prop.ui.extensions.asDisplayCurrency
 import com.cjapps.prop.ui.extensions.asDisplayPercentage
 import com.cjapps.prop.ui.extensions.fadingEdge
@@ -256,66 +255,58 @@ fun InvestmentGridCard(
     } else {
         MaterialTheme.colorScheme.error.copy(alpha = 0.8f)
     }
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .pointerInput(Unit) {
-                detectTapGestures { onTap(investmentId) }
-            },
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(
-                alpha = 0.4f
-            )
-        )
-    ) {
-        Column(Modifier.padding(12.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = investmentName,
-                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp)
-                )
-                Icon(
-                    imageVector = Icons.Rounded.Edit,
-                    contentDescription = stringResource(id = R.string.investment_summary_edit_investment_content_desc),
-                    modifier = Modifier.size(13.dp)
-                )
-            }
-            Row {
-                Text(
-                    modifier = Modifier.alignByBaseline(),
-                    text = desiredPercentage.divide(BigDecimal(100)).asDisplayPercentage(),
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontSize = 40.sp,
-                        brush = Brush.linearGradient(ExtendedTheme.colors.gradientColorList)
+    ListCard(modifier = Modifier
+        .fillMaxWidth()
+        .wrapContentHeight(),
+        onTap = { onTap(investmentId) },
+        content = {
+            Column(Modifier.padding(12.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = investmentName,
+                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp)
                     )
-                )
-                PercentageWithArrow(
-                    modifier = Modifier
-                        .alignByBaseline()
-                        .padding(start = 10.dp),
-                    percentage = currentPercentage,
-                    textStyle = MaterialTheme.typography.titleLarge.copy(
-                        fontSize = 16.sp,
-                        color = desiredPercentageColor
-                    ),
-                    displayArrow = currentPercentage > desiredPercentage && !currentPercentage.isNumericalValueEqualTo(
-                        desiredPercentage
-                    ),
-                    arrowUp = currentPercentage > desiredPercentage,
-                    arrowContentDescription = stringResource(id = R.string.investment_summary_current_percentage_content_desc)
+                    Icon(
+                        imageVector = Icons.Rounded.Edit,
+                        contentDescription = stringResource(id = R.string.investment_summary_edit_investment_content_desc),
+                        modifier = Modifier.size(13.dp)
+                    )
+                }
+                Row {
+                    Text(
+                        modifier = Modifier.alignByBaseline(),
+                        text = desiredPercentage.divide(BigDecimal(100)).asDisplayPercentage(),
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            fontSize = 40.sp,
+                            brush = Brush.linearGradient(ExtendedTheme.colors.gradientColorList)
+                        )
+                    )
+                    PercentageWithArrow(
+                        modifier = Modifier
+                            .alignByBaseline()
+                            .padding(start = 10.dp),
+                        percentage = currentPercentage,
+                        textStyle = MaterialTheme.typography.titleLarge.copy(
+                            fontSize = 16.sp,
+                            color = desiredPercentageColor
+                        ),
+                        displayArrow = currentPercentage > desiredPercentage && !currentPercentage.isNumericalValueEqualTo(
+                            desiredPercentage
+                        ),
+                        arrowUp = currentPercentage > desiredPercentage,
+                        arrowContentDescription = stringResource(id = R.string.investment_summary_current_percentage_content_desc)
+                    )
+                }
+                Text(
+                    modifier = Modifier.padding(top = 12.dp),
+                    text = amount.asDisplayCurrency(),
+                    style = MaterialTheme.typography.titleMedium
                 )
             }
-            Text(
-                modifier = Modifier.padding(top = 12.dp),
-                text = amount.asDisplayCurrency(),
-                style = MaterialTheme.typography.titleMedium
-            )
-        }
-    }
+        })
 }
 
 @Composable

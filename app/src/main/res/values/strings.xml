@@ -10,12 +10,16 @@
     <string name="invest_invest_button">Invest</string>
     <string name="invest_result_button_title">Update Amounts</string>
     <string name="invest_result_page_title">Invest</string>
+    <string name="investment_detail_at">\@</string>
     <string name="investment_detail_delete_button_content_desc">Error</string>
     <string name="investment_detail_error_dialog_title">Error</string>
     <string name="investment_detail_error_duplicate_ticker">A ticker with this name already exists</string>
     <string name="investment_detail_page_title_create">Create</string>
     <string name="investment_detail_page_title_update">Update</string>
     <string name="investment_detail_save_button">Save</string>
+    <string name="investment_detail_share_info_buy">Buy</string>
+    <string name="investment_detail_share_info_market_price">Market Price</string>
+    <string name="investment_detail_share_info_shares">%1$d Shares</string>
     <string name="investment_detail_current_value_input_title">Current Value ($)</string>
     <string name="investment_detail_ticker_input_title">Ticker Name</string>
     <string name="investment_summary_edit_investment_content_desc">Edit</string>

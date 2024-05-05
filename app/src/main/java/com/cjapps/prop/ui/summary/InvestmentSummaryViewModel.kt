@@ -1,5 +1,6 @@
 package com.cjapps.prop.ui.summary
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cjapps.prop.BuildConfig
@@ -42,8 +43,18 @@ class InvestmentSummaryViewModel @Inject constructor(
 
     private fun retrieveInvestments() {
         viewModelScope.launch {
-            val appData = propRepository.getAppData()
-            val appMeetsBuildRequirements = appData.minimumBuildNumber <= BuildConfig.VERSION_CODE
+            val appDataResult = propRepository.getAppData()
+            val appMeetsBuildRequirements: Boolean = if (appDataResult.isSuccess) {
+                val appData = appDataResult.getOrThrow()
+                appData.minimumBuildNumber <= BuildConfig.VERSION_CODE
+            } else {
+                // If we can't get the app data, don't let the user through
+                Log.d(
+                    "InvestmentSummaryViewModel",
+                    "Failed to get app data: ${appDataResult.exceptionOrNull()?.message}"
+                )
+                false
+            }
             investmentRepository.getInvestmentsAsFlow().collect { investments ->
                 val desiredAllocationPercentageSum =
                     investments.fold(BigDecimal.ZERO) { total, item ->

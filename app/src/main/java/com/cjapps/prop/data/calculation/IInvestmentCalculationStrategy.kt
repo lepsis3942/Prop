@@ -8,4 +8,9 @@ interface IInvestmentCalculationStrategy {
         currentInvestments: List<InvestmentAllocation>,
         amountToInvest: BigDecimal
     ): Map<InvestmentAllocation, BigDecimal>
+
+    fun calculateSharesToBuy(
+        investmentAmt: BigDecimal,
+        marketPrice: BigDecimal
+    ): Int
 }
