@@ -12,6 +12,7 @@ import com.cjapps.prop.data.database.AppDatabase
 import com.cjapps.prop.data.database.InvestmentAllocationDao
 import com.cjapps.prop.data.mappers.DaoMapper
 import com.cjapps.prop.data.mappers.IDaoMapper
+import com.cjapps.prop.data.network.CacheInterceptor
 import com.cjapps.prop.data.network.IPropAPIService
 import dagger.Binds
 import dagger.Module
@@ -20,8 +21,11 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import okhttp3.Cache
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.io.File
 import javax.inject.Singleton
 
 
@@ -75,10 +79,17 @@ object DatabaseModule {
 object RetrofitModule {
     @Provides
     @Singleton
-    fun provideRetrofit(): Retrofit = Retrofit.Builder()
-        .baseUrl("https://prop-644bb.firebaseapp.com/")
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
+    fun provideRetrofit(@ApplicationContext appContext: Context): Retrofit {
+        val okHttpClient = OkHttpClient().newBuilder()
+            .cache(Cache(File(appContext.cacheDir, "http-cache"), 10L * 1024L * 1024L)) // 10 MiB
+            .addNetworkInterceptor(CacheInterceptor())
+            .build()
+        return Retrofit.Builder()
+            .client(okHttpClient)
+            .baseUrl("https://prop-644bb.firebaseapp.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
 
     @Provides
     @Singleton
