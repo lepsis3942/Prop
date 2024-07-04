@@ -6,6 +6,7 @@
     <string name="invest_amount_to_invest_input_title">Amount to Invest ($)</string>
     <string name="invest_amount_to_invest_title">Amount to Invest:</string>
     <string name="invest_calculation_arrow_content_description">Arrow</string>
+    <string name="invest_current_investments_title">Current Investment Values</string>
     <string name="invest_page_title">Invest</string>
     <string name="invest_invest_button">Invest</string>
     <string name="invest_result_button_title">Update Amounts</string>

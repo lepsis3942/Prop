@@ -147,6 +147,14 @@ private fun AdjustInvestmentValues(
                 shape = RoundedCornerShape(60.dp),
             )
         }
+        Row {
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                text = stringResource(id = R.string.invest_current_investments_title)
+            )
+        }
         Row(
             modifier = Modifier
                 .fillMaxWidth()
