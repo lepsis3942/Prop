@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.cjapps.prop.DispatcherProvider
 import com.cjapps.prop.IDispatcherProvider
+import com.cjapps.prop.R
 import com.cjapps.prop.data.IInvestmentRepository
 import com.cjapps.prop.data.IPropRepository
 import com.cjapps.prop.data.InvestmentRepository
@@ -84,9 +85,10 @@ object RetrofitModule {
             .cache(Cache(File(appContext.cacheDir, "http-cache"), 10L * 1024L * 1024L)) // 10 MiB
             .addNetworkInterceptor(CacheInterceptor())
             .build()
+        val baseUrl = appContext.getString(R.string.prop_backend_base_url)
         return Retrofit.Builder()
             .client(okHttpClient)
-            .baseUrl("https://prop-644bb.firebaseapp.com/")
+            .baseUrl(baseUrl)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
