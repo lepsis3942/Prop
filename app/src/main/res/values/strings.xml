@@ -27,5 +27,4 @@
     <string name="investment_summary_current_percentage_content_desc">Current Percentage</string>
     <string name="minimum_build_version_dialog_title">Update Required</string>
     <string name="minimum_build_version_dialog_body">A newer version of the app is required</string>
-    <string name="prop_backend_base_url">override_with_real_from_local</string>
 </resources>
