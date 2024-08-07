@@ -13,3 +13,7 @@ Some other things I've used/tested here:
 - Hilt for dependency injection
 - Room for data persistence
 - Kotlin coroutine Flow for asynchronous computaion
+
+## Missing items/features
+- Testing is important in codebases, this project is a personal project that I code in my free time. As such I have strategically written tests where most needed to get the most value from them while balancing the limited time I have to spend on this
+- Would love to extend the financial API portion of the app, so far just a POC for stock prices. Would like to include historical/background data for research and current news per investment
